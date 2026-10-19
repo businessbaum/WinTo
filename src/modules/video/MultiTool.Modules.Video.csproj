@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0: plays videos through Windows' Media Foundation player (MFPlay) in a native child window,
+       exports through ffmpeg. No video library of its own. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Video</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Video</AssemblyName>
+
+    <!-- MFPlay over its COM vtable and the child window: the [LibraryImport] source generator emits unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0: one place for RGB lighting. Windows Dynamic Lighting over hand-written WinRT, OpenRGB's SDK
+       protocol over TCP, SteelSeries GameSense and Razer Chroma over local HTTP. No vendor DLL, no library. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Rgb</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Rgb</AssemblyName>
+
+    <!-- WinRT over COM vtables: function pointers and the [LibraryImport] source generator need unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

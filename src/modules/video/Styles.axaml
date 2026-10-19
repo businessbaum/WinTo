@@ -1,0 +1,40 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <StreamGeometry x:Key="VideoOpen">M3 6a2 2 0 0 1 2-2h4.2l2 2H19a2 2 0 0 1 2 2v1H3V6Zm0 4h18l-1.7 8.4A2 2 0 0 1 17.3 20H5.8a2 2 0 0 1-2-1.6L3 10Z</StreamGeometry>
+    <StreamGeometry x:Key="VideoPlay">M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z</StreamGeometry>
+    <StreamGeometry x:Key="VideoPause">M6 4h4v16H6V4Zm8 0h4v16h-4V4Z</StreamGeometry>
+    <StreamGeometry x:Key="VideoSound">M4 9h4l5-4v14l-5-4H4V9Zm11.5-1.3a6 6 0 0 1 0 8.6l-1.4-1.4a4 4 0 0 0 0-5.8l1.4-1.4Z</StreamGeometry>
+    <StreamGeometry x:Key="VideoMuted">M4 9h4l5-4v14l-5-4H4V9Zm11.3.3 1.4-1.4L19 10.2l2.3-2.3 1.4 1.4-2.3 2.3 2.3 2.3-1.4 1.4-2.3-2.3-2.3 2.3-1.4-1.4 2.3-2.3-2.3-2.3Z</StreamGeometry>
+  </Styles.Resources>
+
+  <Style Selector="Border.stage">
+    <Setter Property="Background" Value="{DynamicResource BgBaseBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Padding" Value="1" />
+  </Style>
+
+  <Style Selector="Border.sidePanel">
+    <Setter Property="Width" Value="316" />
+    <Setter Property="Margin" Value="0,0,16,16" />
+    <Setter Property="Padding" Value="16,14" />
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+  </Style>
+
+  <Style Selector="Button.play">
+    <Setter Property="Width" Value="40" />
+    <Setter Property="Height" Value="40" />
+    <Setter Property="CornerRadius" Value="20" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+</Styles>

@@ -1,0 +1,335 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MultiTool.Host.ViewModels"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Host.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+  <UserControl.Styles>
+    <!-- One row per setting: what it is on the left, the switch on the right, like Windows Settings. -->
+    <Style Selector="Border.settingRow">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="16,11" />
+      <Setter Property="MinHeight" Value="58" />
+    </Style>
+    <Style Selector="TextBlock.rowTitle">
+      <Setter Property="FontSize" Value="13.5" />
+      <Setter Property="FontWeight" Value="500" />
+    </Style>
+    <Style Selector="TextBlock.caption.problem">
+      <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+    </Style>
+    <Style Selector="StackPanel.group">
+      <Setter Property="Spacing" Value="6" />
+    </Style>
+
+    <!-- A color swatch: a dot inside a ring that marks the chosen one. -->
+    <Style Selector="Button.swatch">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="3" />
+      <Setter Property="CornerRadius" Value="13" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.swatch /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+    <Style Selector="Button.swatch.selected /template/ ContentPresenter#PART_ContentPresenter, Button.swatch.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+
+  </UserControl.Styles>
+
+  <ScrollViewer Padding="28,20,28,28" HorizontalScrollBarVisibility="Disabled">
+    <!-- A column capped at 760: as wide as the window allows, left-aligned, never wider. -->
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="760" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+    <StackPanel Spacing="22">
+
+      <TextBlock Text="Settings" Classes="h1" />
+
+      <!-- ================= General ================= -->
+      <StackPanel Classes="group">
+        <TextBlock Text="GENERAL" Classes="h3" Margin="2,0,0,4" />
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Accent color" Classes="rowTitle" />
+              <TextBlock Text="Buttons, switches and selection." Classes="caption" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <ItemsControl ItemsSource="{Binding Accents}" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="4" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:AccentChoice">
+                    <Button Classes="swatch" Classes.selected="{Binding IsSelected}" ToolTip.Tip="{Binding Name}"
+                            Command="{Binding $parent[ItemsControl].((vm:SettingsViewModel)DataContext).ChooseAccentCommand}"
+                            CommandParameter="{Binding}">
+                      <Border CornerRadius="10" Background="{Binding Brush}" />
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBox Text="{Binding CustomAccent}" PlaceholderText="#RRGGBB" Width="96" Classes="mono"
+                       VerticalAlignment="Center" ToolTip.Tip="Any color as #RRGGBB." />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Keep running in the tray" Classes="rowTitle" />
+              <TextBlock Text="Closing the window keeps the tray icon and the control center." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RunInBackground}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Open the window on start" Classes="rowTitle" />
+              <TextBlock Text="Off: WinTo starts into the tray. Starting it again opens the window." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding OpenWindowOnStart}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Run as administrator" Classes="rowTitle" />
+              <TextBlock Text="{Binding RunElevatedText}" Classes="caption"
+                         Classes.problem="{Binding RunElevatedProblem}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding RunElevated}" IsEnabled="{Binding CanRunElevated}"
+                          VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Start with Windows" Classes="rowTitle" />
+              <TextBlock Text="Starts in the tray, without a window." Classes="caption"
+                         IsVisible="{Binding AutostartProblem, Converter={x:Static ObjectConverters.IsNull}}" />
+              <TextBlock Text="{Binding AutostartProblem}" Classes="caption" Foreground="{DynamicResource DangerBrush}"
+                         IsVisible="{Binding AutostartProblem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- ================= Notifications ================= -->
+      <StackPanel Classes="group">
+        <TextBlock Text="NOTIFICATIONS" Classes="h3" Margin="2,0,0,4" />
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Position" Classes="rowTitle" />
+              <CheckBox Content="On the display with the mouse pointer" IsChecked="{Binding NoticeFollowPointer}" Margin="0,4,0,0" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Corners}" SelectedIndex="{Binding CornerIndex}"
+                      MinWidth="160" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Shown for" Classes="rowTitle" />
+              <TextBlock Text="A card stays while the mouse pointer is on it." Classes="caption" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding DurationChoices}" SelectedIndex="{Binding DurationIndex}"
+                      MinWidth="160" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Look" Classes="rowTitle" />
+              <StackPanel Orientation="Horizontal" Spacing="18" Margin="0,4,0,0">
+                <CheckBox Content="Large" IsChecked="{Binding NoticeLarge}" />
+                <CheckBox Content="Accent edge" IsChecked="{Binding NoticeAccentEdge}" />
+              </StackPanel>
+            </StackPanel>
+            <Button Grid.Column="1" Content="Show a test card" Command="{Binding TestNoticeCommand}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Sound" Classes="rowTitle" />
+              <TextBlock Text="Windows' notification sound with each card." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoticeSound}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Quiet during games and full screen" Classes="rowTitle" />
+              <TextBlock Text="No cards while a game, a full-screen program or a presentation runs." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoticeQuiet}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Cards for" Classes="rowTitle" />
+            <ItemsControl ItemsSource="{Binding NoticeKinds}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Spacing="6" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:NoticeKindChoice">
+                  <CheckBox IsChecked="{Binding IsOn}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding Name}" />
+                      <TextBlock Text="{Binding Example}" Classes="caption muted" VerticalAlignment="Center" />
+                    </StackPanel>
+                  </CheckBox>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ================= Tools ================= -->
+      <StackPanel Classes="group">
+        <TextBlock Text="TOOLS" Classes="h3" Margin="2,0,0,4" />
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Open tools" Classes="rowTitle" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+              <RadioButton GroupName="OpenMode" IsChecked="{Binding OpenInTab}" Content="As a tab" />
+              <RadioButton GroupName="OpenMode" IsChecked="{Binding OpenInWindow}" Content="In a window" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Release on close" Classes="rowTitle" />
+              <TextBlock Text="Frees devices and memory. Off keeps a tool's state until the app ends." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ReleaseOnClose}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Check tile status at startup" Classes="rowTitle" />
+              <TextBlock Text="Runs in the background after the window appears." Classes="caption" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ScanStatusOnStart}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow" Padding="16,6,8,6">
+          <StackPanel>
+            <Grid ColumnDefinitions="*,Auto" MinHeight="44">
+              <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                <TextBlock Text="Per tool" Classes="rowTitle" />
+                <TextBlock Text="Open single tools as a tab or a window regardless of the setting above." Classes="caption" />
+              </StackPanel>
+              <Button Grid.Column="1" Classes="ghost icon" Command="{Binding ToggleOverridesCommand}"
+                      VerticalAlignment="Center" ToolTip.Tip="Show tools">
+                <PathIcon Data="{DynamicResource IconChevronDown}" Classes="small muted" />
+              </Button>
+            </Grid>
+            <ItemsControl ItemsSource="{Binding Overrides}" Margin="0,6,8,8" IsVisible="{Binding ShowOverrides}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ModuleOpenModeEntry">
+                  <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,12,0" />
+                    <!-- GroupName per row; otherwise one click would clear the choice in every other row. -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14">
+                      <RadioButton GroupName="{Binding GroupName}" IsChecked="{Binding IsDefault}" Content="Default" />
+                      <RadioButton GroupName="{Binding GroupName}" IsChecked="{Binding IsTab}" Content="Tab" />
+                      <RadioButton GroupName="{Binding GroupName}" IsChecked="{Binding IsWindow}" Content="Window" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ================= About ================= -->
+      <StackPanel Classes="group">
+        <TextBlock Text="ABOUT" Classes="h3" Margin="2,0,0,4" />
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Introduction" Classes="rowTitle" />
+              <TextBlock Text="The tour from the first start." Classes="caption" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="Show" Command="{Binding ShowIntroCommand}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Data folder" Classes="rowTitle" />
+              <TextBlock Text="{Binding DataDirectory}" Classes="caption" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="Open" VerticalAlignment="Center"
+                    Command="{Binding RevealDirectoryCommand}" CommandParameter="{Binding DataDirectory}" />
+          </Grid>
+        </Border>
+
+        <Border Classes="settingRow">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+              <TextBlock Text="Diagnostics" Classes="rowTitle" />
+              <TextBlock Text="{Binding VersionText}" Classes="caption" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="Open" Command="{Binding OpenDiagnosticsCommand}" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+    </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

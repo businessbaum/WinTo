@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0 the former screenshot and recorder modules, as two sections (Screenshot/,
+       Recording/). Screenshots via GDI and PrintWindow, text recognition via Windows OCR over COM;
+       recording through ffmpeg, which this module starts, feeds and reads. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Capture</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Capture</AssemblyName>
+
+    <!-- For RegisterHotKey, GDI and the clipboard: the [LibraryImport] source generator emits unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only for system audio. On Windows ffmpeg knows only DirectShow, which has no source for
+         "what is playing right now"; WASAPI loopback does, and NAudio provides it.
+
+         NAudio stays in the module folder and never crosses to the host, so it is deliberately
+         NOT in ModuleLoadContext.IsShared. Two modules may bring different versions. -->
+    <PackageReference Include="NAudio" />
+  </ItemGroup>
+
+</Project>

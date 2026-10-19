@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Shared look. Always in the default context so modules find the styles via
+       {DynamicResource} without bringing their own. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.UI</RootNamespace>
+    <AssemblyName>MultiTool.UI</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <ProjectReference Include="..\MultiTool.Abstractions\MultiTool.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

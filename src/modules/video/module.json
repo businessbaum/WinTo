@@ -1,0 +1,34 @@
+{
+  "id": "video",
+  "name": "Video",
+  "summary": "Play, cut, convert and shrink videos.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Media",
+  "order": 24,
+
+  "icon": "M4 5h11a2 2 0 0 1 2 2v2.2l3.4-2.1A1 1 0 0 1 22 8v8a1 1 0 0 1-1.6.9L17 14.8V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v10h11V7H4Zm4 2.3 4.5 2.7L8 14.7V9.3Z",
+  "accent": "#E85D75",
+
+  "assembly": "MultiTool.Modules.Video.dll",
+  "entryType": "MultiTool.Modules.Video.VideoModule",
+
+  "keywords": ["video", "player", "play", "cut", "trim", "clip", "convert", "compress", "shrink", "size",
+               "discord", "mp4", "mkv", "mov", "webm", "avi", "gif", "mp3", "audio", "extract", "rotate",
+               "speed", "frame", "snapshot", "ffmpeg"],
+
+  "requires": [
+    {
+      "tool": "ffmpeg",
+      "hint": "Needed for cutting, converting and shrinking; playing works without. winget install Gyan.FFmpeg",
+      "mandatory": false
+    }
+  ],
+
+  "elevation": "never",
+  "keepsRunning": false,
+
+  "status": {
+    "kind": "none"
+  }
+}

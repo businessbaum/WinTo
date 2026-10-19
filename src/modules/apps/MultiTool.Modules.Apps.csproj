@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0 the former packages and uninstaller modules, as two sections (Packages/,
+       Uninstaller/). No packages: winget is started as a program, the uninstaller reads the registry. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Apps</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Apps</AssemblyName>
+  </PropertyGroup>
+
+</Project>

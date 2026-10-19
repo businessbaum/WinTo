@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Module conventions live in ..\Directory.Build.props. This module only controls an
+              external receiver and needs nothing beyond the class library and ExternalProcess. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.AirPlay</RootNamespace>
+    <AssemblyName>MultiTool.Modules.AirPlay</AssemblyName>
+  </PropertyGroup>
+
+</Project>

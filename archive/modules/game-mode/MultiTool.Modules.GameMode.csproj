@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- No packages: power plans via powrprof.dll, Windows Game Mode via the user registry. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.GameMode</RootNamespace>
+    <AssemblyName>MultiTool.Modules.GameMode</AssemblyName>
+
+    <!-- For LibraryImport and the GUID pointers of the power functions. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

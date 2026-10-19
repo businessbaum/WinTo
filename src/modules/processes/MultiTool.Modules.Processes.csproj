@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Processes</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Processes</AssemblyName>
+
+    <!-- The LibraryImport source generator emits marshalling code that needs this switch. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

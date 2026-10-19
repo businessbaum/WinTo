@@ -1,0 +1,307 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:MultiTool.Modules.Soundboard.ViewModels"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Soundboard.Views.SoundboardView"
+             x:DataType="vm:SoundboardViewModel">
+
+  <!-- Include the module's icons here too.
+
+              StaticResource resolves when the XAML loads, when this control has no parent yet, so
+              ModuleView's resources are out of reach. Styles differ: they apply at runtime across
+              the whole tree, so Controls.axaml is included once at the top. -->
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://MultiTool.Modules.Soundboard/Styles/Icons.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <DockPanel>
+
+    <!-- ============ Toolbar ============ -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+        <Border Classes="search" Width="280">
+          <Grid ColumnDefinitions="Auto,*">
+            <PathIcon Grid.Column="0"
+                      Data="{StaticResource IconSearch}"
+                      Classes="muted small"
+                      VerticalAlignment="Center"
+                      Margin="0,0,8,0" />
+            <TextBox Grid.Column="1"
+                     Classes="plain"
+                     PlaceholderText="Search sounds…"
+                     VerticalAlignment="Center"
+                     Text="{Binding SearchText}" />
+          </Grid>
+        </Border>
+
+        <TextBlock Text="{Binding CountText}"
+                   Classes="caption"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Command="{Binding AddRootFolderCommand}" ToolTip.Tip="Create a new top-level folder">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconFolder}" Classes="small" />
+            <TextBlock Text="New folder" />
+          </StackPanel>
+        </Button>
+
+        <Button Classes="accent" Command="{Binding ImportFilesCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconFile}" Classes="onAccent small" />
+            <TextBlock Text="Files" />
+          </StackPanel>
+        </Button>
+
+        <Button Command="{Binding ImportFolderCommand}" ToolTip.Tip="Import folders with subfolders">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconFolder}" Classes="small" />
+            <TextBlock Text="Folder" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- ============ Tree ============ -->
+    <Panel>
+
+      <ListBox x:Name="NodeList"
+               ItemsSource="{Binding VisibleItems}"
+               SelectedItem="{Binding SelectedNode}"
+               SelectionMode="Single"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+        <ListBox.DataTemplates>
+
+          <!-- folder row -->
+          <DataTemplate DataType="vm:FolderNodeViewModel">
+            <Border Margin="{Binding Indent}">
+              <Border Classes="folderRow" Classes.dropTarget="{Binding IsDropTarget}">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
+
+                  <Border Grid.Column="0" Classes="grip">
+                    <PathIcon Data="{StaticResource IconGrip}" />
+                  </Border>
+
+                  <Button Grid.Column="1"
+                          Classes="ghost icon"
+                          Width="26" Height="26"
+                          Command="{Binding ToggleExpandedCommand}"
+                          ToolTip.Tip="Expand / collapse">
+                    <PathIcon Classes="chevron"
+                              Classes.expanded="{Binding IsExpanded}"
+                              Data="{StaticResource IconChevron}" />
+                  </Button>
+
+                  <PathIcon Grid.Column="2"
+                            Data="{StaticResource IconFolderOpen}"
+                            Width="16" Height="16"
+                            Foreground="{DynamicResource AccentHoverBrush}"
+                            VerticalAlignment="Center"
+                            Margin="4,0,8,0" />
+
+                  <TextBox Grid.Column="3"
+                           Classes="inline"
+                           Text="{Binding Name}"
+                           HorizontalAlignment="Left"
+                           MinWidth="140"
+                           ToolTip.Tip="Click to rename" />
+
+                  <TextBlock Grid.Column="4"
+                             Text="{Binding CountText}"
+                             Classes="caption muted"
+                             VerticalAlignment="Center"
+                             Margin="10,0" />
+
+                  <Button Grid.Column="5"
+                          Classes="ghost icon"
+                          Width="28" Height="28"
+                          Command="{Binding AddSubfolderCommand}"
+                          ToolTip.Tip="Create subfolder">
+                    <PathIcon Data="{StaticResource IconPlus}" Width="13" Height="13"
+                              Foreground="{Binding $parent[Button].Foreground}" />
+                  </Button>
+
+                  <Button Grid.Column="6"
+                          Classes="danger icon"
+                          Width="28" Height="28"
+                          Margin="4,0,0,0"
+                          Command="{Binding RemoveCommand}"
+                          ToolTip.Tip="Dissolve folder. The content moves up a level.">
+                    <PathIcon Data="{StaticResource IconTrash}" Width="13" Height="13"
+                              Foreground="{Binding $parent[Button].Foreground}" />
+                  </Button>
+
+                </Grid>
+              </Border>
+            </Border>
+          </DataTemplate>
+
+          <!-- sound row -->
+          <DataTemplate DataType="vm:SoundItemViewModel">
+            <Border Margin="{Binding Indent}">
+              <Border Classes="soundRow" Classes.playing="{Binding IsPlaying}">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
+
+                  <Border Grid.Column="0" Classes="grip" Margin="0,0,4,0">
+                    <PathIcon Data="{StaticResource IconGrip}" />
+                  </Border>
+
+                  <Button Grid.Column="1"
+                          Classes="play"
+                          Classes.playing="{Binding IsPlaying}"
+                          Command="{Binding ToggleCommand}"
+                          Margin="0,0,12,0"
+                          ToolTip.Tip="Play / stop">
+                    <Panel>
+                      <PathIcon Data="{StaticResource IconPlay}"
+                                Width="14" Height="14"
+                                Margin="2,0,0,0"
+                                IsVisible="{Binding !IsPlaying}" />
+                      <PathIcon Data="{StaticResource IconStop}"
+                                Width="13" Height="13"
+                                Foreground="#FFFFFF"
+                                IsVisible="{Binding IsPlaying}" />
+                    </Panel>
+                  </Button>
+
+                  <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="1">
+                    <TextBox Classes="inline"
+                             Text="{Binding Name}"
+                             ToolTip.Tip="Click to rename" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <PathIcon Data="{StaticResource IconWarn}"
+                                Width="11" Height="11"
+                                Foreground="{DynamicResource DangerBrush}"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding IsMissing}"
+                                ToolTip.Tip="File not found" />
+                      <TextBlock Text="{Binding FileName}"
+                                 Classes="caption muted"
+                                 TextTrimming="CharacterEllipsis"
+                                 MaxWidth="360" />
+                      <TextBlock Text="·" Classes="caption muted" />
+                      <TextBlock Text="{Binding DurationText}" Classes="caption muted mono" />
+                    </StackPanel>
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="3"
+                              Orientation="Horizontal"
+                              Spacing="6"
+                              VerticalAlignment="Center"
+                              Margin="12,0">
+                    <Slider Width="90"
+                            Minimum="0" Maximum="1.5"
+                            VerticalAlignment="Center"
+                            Value="{Binding Volume}"
+                            ToolTip.Tip="Volume of this sound" />
+                    <TextBlock Text="{Binding VolumeText}"
+                               Classes="caption mono muted"
+                               Width="36"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+
+                  <ToggleButton Grid.Column="4"
+                                Classes="iconToggle"
+                                IsChecked="{Binding Loop}"
+                                Margin="0,0,8,0"
+                                ToolTip.Tip="Loop">
+                    <PathIcon Data="{StaticResource IconLoop}" Width="14" Height="14"
+                              Foreground="{Binding $parent[ToggleButton].Foreground}" />
+                  </ToggleButton>
+
+                  <Button Grid.Column="5"
+                          Classes="chip"
+                          Classes.assigned="{Binding HasHotkey}"
+                          Classes.recording="{Binding IsRecordingHotkey}"
+                          Command="{Binding RecordHotkeyCommand}"
+                          Content="{Binding HotkeyText}"
+                          ToolTip.Tip="Click and press a key" />
+
+                  <Button Grid.Column="6"
+                          Classes="ghost icon"
+                          Width="28" Height="28"
+                          Margin="4,0,0,0"
+                          Command="{Binding ClearHotkeyCommand}"
+                          IsVisible="{Binding HasHotkey}"
+                          ToolTip.Tip="Remove hotkey">
+                    <TextBlock Text="✕" FontSize="11" />
+                  </Button>
+
+                  <Button Grid.Column="7"
+                          Classes="danger icon"
+                          Margin="6,0,0,0"
+                          Command="{Binding RemoveCommand}"
+                          ToolTip.Tip="Remove from list">
+                    <PathIcon Data="{StaticResource IconTrash}"
+                              Width="14" Height="14"
+                              Foreground="{Binding $parent[Button].Foreground}" />
+                  </Button>
+
+                </Grid>
+              </Border>
+            </Border>
+          </DataTemplate>
+
+        </ListBox.DataTemplates>
+      </ListBox>
+
+      <!-- ============ Empty state ============ -->
+      <Border IsVisible="{Binding ShowEmptyState}"
+              Background="{DynamicResource BgSurfaceBrush}"
+              BorderBrush="{DynamicResource BorderBrush}"
+              BorderThickness="1"
+              CornerRadius="{DynamicResource RadiusLg}"
+              IsHitTestVisible="False">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14" MaxWidth="460">
+          <Border Width="56" Height="56"
+                  CornerRadius="16"
+                  HorizontalAlignment="Center"
+                  Background="{DynamicResource BgElevatedBrush}">
+            <PathIcon Data="{StaticResource IconWave}" Width="26" Height="26" Classes="muted" />
+          </Border>
+          <TextBlock Text="No sounds yet"
+                     Classes="h1"
+                     HorizontalAlignment="Center" />
+          <TextBlock Classes="caption"
+                     TextAlignment="Center"
+                     Text="Drag files or whole folders here. The folder structure is kept." />
+        </StackPanel>
+      </Border>
+
+      <!-- ============ Search without results ============ -->
+      <StackPanel IsVisible="{Binding ShowNoResults}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Spacing="8"
+                  IsHitTestVisible="False">
+        <TextBlock Text="No results" Classes="h2" HorizontalAlignment="Center" />
+        <TextBlock Text="No sound matches the search." Classes="caption" HorizontalAlignment="Center" />
+      </StackPanel>
+
+      <!-- ============ Drop overlay for files from outside ============ -->
+      <Border IsVisible="{Binding IsDragOver}"
+              IsHitTestVisible="False"
+              Background="#CC101118"
+              BorderBrush="{DynamicResource AccentBrush}"
+              BorderThickness="2"
+              CornerRadius="{DynamicResource RadiusLg}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+          <PathIcon Data="{StaticResource IconPlus}" Width="30" Height="30"
+                    Foreground="{DynamicResource AccentHoverBrush}" />
+          <TextBlock Text="Release to import" Classes="h2" HorizontalAlignment="Center" />
+          <TextBlock Text="Files and whole folders are imported." Classes="caption" HorizontalAlignment="Center" />
+        </StackPanel>
+      </Border>
+
+    </Panel>
+  </DockPanel>
+</UserControl>

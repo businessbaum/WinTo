@@ -1,0 +1,203 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Files.Convert"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Files.Convert.ImageConvertView"
+             x:DataType="local:ImageConvertViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Files/Convert/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+    <!-- ========================= Settings ========================= -->
+    <Border Grid.Row="0" Classes="card" Margin="24,18,24,12" Padding="16,14">
+      <StackPanel Spacing="14">
+
+        <Grid ColumnDefinitions="90,*">
+          <TextBlock Grid.Column="0" Text="Format" Classes="label" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+            <Button Classes="nav" Classes.navActive="{Binding IsPng}"
+                    Command="{Binding SelectFormatCommand}" CommandParameter="0"
+                    ToolTip.Tip="Lossless. For screenshots, drawings, text and sharp edges."
+                    Content="PNG" />
+            <Button Classes="nav" Classes.navActive="{Binding IsJpeg}"
+                    Command="{Binding SelectFormatCommand}" CommandParameter="1"
+                    ToolTip.Tip="For photos. No transparency."
+                    Content="JPEG" />
+            <Button Classes="nav" Classes.navActive="{Binding IsWebP}"
+                    Command="{Binding SelectFormatCommand}" CommandParameter="2"
+                    ToolTip.Tip="Usually smaller than JPEG at comparable quality. With transparency."
+                    Content="WebP" />
+
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="90,*,Auto" IsVisible="{Binding HasQuality}">
+          <TextBlock Grid.Column="0" Text="Quality" Classes="label" VerticalAlignment="Center" />
+          <Slider Grid.Column="1" Minimum="1" Maximum="100" Value="{Binding Quality}"
+                  VerticalAlignment="Center" Margin="0,0,12,0" />
+          <TextBlock Grid.Column="2" Text="{Binding QualityText}" Classes="mono"
+                     VerticalAlignment="Center" Width="34" TextAlignment="Right" />
+        </Grid>
+
+        <Grid ColumnDefinitions="90,*">
+          <TextBlock Grid.Column="0" Text="Size" Classes="label" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+            <Button Classes="nav" Classes.navActive="{Binding ResizeIsNone}"
+                    Command="{Binding SelectResizeCommand}" CommandParameter="0"
+                    Content="unchanged" />
+            <Button Classes="nav" Classes.navActive="{Binding ResizeIsMaxEdge}"
+                    Command="{Binding SelectResizeCommand}" CommandParameter="1"
+                    ToolTip.Tip="Upper limit for the longer edge. Smaller images stay unchanged."
+                    Content="longest edge" />
+            <Button Classes="nav" Classes.navActive="{Binding ResizeIsPercent}"
+                    Command="{Binding SelectResizeCommand}" CommandParameter="2"
+                    Content="share" />
+
+            <NumericUpDown Value="{Binding MaxEdge}" Minimum="16" Maximum="20000" Increment="160"
+                           Width="130" Margin="10,0,0,0" FormatString="0"
+                           IsVisible="{Binding ResizeIsMaxEdge}" />
+
+            <NumericUpDown Value="{Binding Percent}" Minimum="1" Maximum="100" Increment="5"
+                           Width="110" Margin="10,0,0,0" FormatString="0"
+                           IsVisible="{Binding ResizeIsPercent}" />
+
+            <TextBlock Text="pixels" Classes="caption muted" VerticalAlignment="Center" Margin="8,0,0,0"
+                       IsVisible="{Binding ResizeIsMaxEdge}" />
+            <TextBlock Text="percent" Classes="caption muted" VerticalAlignment="Center" Margin="8,0,0,0"
+                       IsVisible="{Binding ResizeIsPercent}" />
+          </StackPanel>
+        </Grid>
+
+        <!-- Only visible when a video is in the list. -->
+        <Grid ColumnDefinitions="90,*" IsVisible="{Binding HasVideos}">
+          <TextBlock Grid.Column="0" Text="Video" Classes="label" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+            <Button Classes="nav" Classes.navActive="{Binding VideoIsMp4}"
+                    Command="{Binding SelectVideoCommand}" CommandParameter="0"
+                    ToolTip.Tip="Plays everywhere: Discord shows a preview, browsers and Windows Media Player accept it."
+                    Content="MP4" />
+            <Button Classes="nav" Classes.navActive="{Binding VideoIsMkv}"
+                    Command="{Binding SelectVideoCommand}" CommandParameter="1"
+                    ToolTip.Tip="Takes almost any stream and survives interruption. Unsuitable for sharing."
+                    Content="MKV" />
+
+            <TextBlock Text="Remuxed, not re-encoded. Video and audio stay unchanged."
+                       Classes="caption muted" VerticalAlignment="Center" Margin="14,0,0,0"
+                       TextWrapping="Wrap" MaxWidth="320" />
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="90,*,Auto,Auto,Auto">
+          <TextBlock Grid.Column="0" Text="Target" Classes="label" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding TargetText}" Classes="caption muted mono"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,12,0" />
+
+          <CheckBox Grid.Column="2" IsChecked="{Binding Overwrite}" Content="overwrite"
+                    VerticalAlignment="Center" Margin="0,0,12,0"
+                    ToolTip.Tip="Off: existing target files get &quot;(2)&quot; appended. The source file is never overwritten." />
+
+          <Button Grid.Column="3" Classes="ghost" Margin="0,0,8,0"
+                  Command="{Binding PickTargetCommand}" Content="Target folder" />
+          <Button Grid.Column="4" Classes="ghost"
+                  Command="{Binding ResetTargetCommand}" Content="Reset" />
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <!-- ========================= Controls ========================= -->
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="24,0,24,12">
+      <Button Grid.Column="0" Classes="ghost" Margin="0,0,8,0"
+              Command="{Binding AddFilesCommand}" Content="Add files" />
+      <Button Grid.Column="1" Classes="ghost"
+              Command="{Binding AddFolderCommand}" Content="Folder" />
+
+      <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center" Margin="18,0">
+        <TextBlock Text="{Binding QueueHint}" Classes="caption"
+                   Foreground="{DynamicResource AccentBrush}"
+                   IsVisible="{Binding HasQueueHint}" />
+      </StackPanel>
+
+      <Button Grid.Column="3" Classes="ghost" Margin="0,0,8,0"
+              IsVisible="{Binding !IsBusy}"
+              Command="{Binding ClearDoneCommand}" Content="Remove finished" />
+
+      <Button Grid.Column="4" Classes="accent"
+              Classes.callToAction="{Binding HasQueueHint}"
+              IsVisible="{Binding !IsBusy}"
+              Command="{Binding StartCommand}" Content="Convert" />
+
+      <Button Grid.Column="4" Classes="danger"
+              IsVisible="{Binding IsBusy}"
+              Command="{Binding CancelCommand}" Content="Cancel" />
+    </Grid>
+
+    <!-- ========================= Messages ========================= -->
+    <StackPanel Grid.Row="2" Margin="24,0,24,12" Spacing="10">
+      <ProgressBar Height="4" CornerRadius="2" Minimum="0" Maximum="1" Value="{Binding Progress}"
+                   IsVisible="{Binding IsBusy}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   Background="{DynamicResource BgElevatedBrush}" />
+
+      <Border Classes="notice" Classes.noticeError="{Binding MessageIsError}"
+              IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+
+    <!-- ========================== The list ========================== -->
+    <Border Grid.Row="3" Classes="drop" Classes.dropActive="{Binding IsDragOver}" Margin="24,0,24,24">
+      <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6"
+                    IsVisible="{Binding !HasJobs}">
+          <TextBlock Text="Drop images or videos here" Classes="h3" HorizontalAlignment="Center" />
+          <TextBlock Classes="caption muted" HorizontalAlignment="Center" TextAlignment="Center"
+                     Text="HEIC, AVIF and TIFF need ffmpeg." />
+        </StackPanel>
+
+        <ScrollViewer Classes="list" IsVisible="{Binding HasJobs}" Padding="10">
+          <ItemsControl ItemsSource="{Binding Jobs}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="local:ImageJob">
+                <Border Classes="job" Classes.jobBad="{Binding IsFailed}" Margin="0,0,0,6">
+                  <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+
+                    <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding StatusText}" Classes="caption muted"
+                                 TextWrapping="Wrap"
+                                 IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" Text="{Binding SizeText}" Classes="caption mono muted"
+                               VerticalAlignment="Center" Margin="12,0" />
+
+                    <Border Grid.Column="2" Classes="badge" Padding="9,3" VerticalAlignment="Center"
+                            Classes.badgeLive="{Binding IsRunning}"
+                            Classes.badgeDone="{Binding IsDone}">
+                      <TextBlock Text="{Binding StateText}" />
+                    </Border>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="8,0,0,0">
+                      <Button Classes="ghost jobAction" Content="Show" Padding="8,2"
+                              IsVisible="{Binding IsDone}"
+                              Command="{Binding $parent[ItemsControl].((local:ImageConvertViewModel)DataContext).RevealCommand}"
+                              CommandParameter="{Binding}" />
+                      <Button Classes="ghost jobAction" Content="✕" Padding="8,2"
+                              Command="{Binding $parent[ItemsControl].((local:ImageConvertViewModel)DataContext).RemoveJobCommand}"
+                              CommandParameter="{Binding}" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

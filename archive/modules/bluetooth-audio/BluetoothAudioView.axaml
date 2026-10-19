@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.BluetoothAudio"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.BluetoothAudio.BluetoothAudioView"
+             x:DataType="local:BluetoothAudioViewModel">
+
+  <ScrollViewer Padding="24,20,24,24">
+    <StackPanel Spacing="14" MaxWidth="720" HorizontalAlignment="Stretch">
+
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Grid.Column="0"
+                   Text="Paired headphones"
+                   Classes="h2"
+                   VerticalAlignment="Center" />
+        <Button Grid.Column="1"
+                Classes="ghost"
+                Command="{Binding RefreshCommand}"
+                Content="Refresh" />
+      </Grid>
+
+      <!-- Only visible after the first enumeration, or the empty message would flash. -->
+      <TextBlock Text="No Bluetooth headphones paired. Pairing is done in Windows Settings."
+                 Classes="caption"
+                 TextWrapping="Wrap">
+        <TextBlock.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="Loaded" />
+            <Binding Path="!HasDevices" />
+          </MultiBinding>
+        </TextBlock.IsVisible>
+      </TextBlock>
+
+      <ItemsControl ItemsSource="{Binding Devices}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="local:HeadsetRow">
+            <Border Classes="card" Margin="0,0,0,10" Padding="18,14">
+              <Grid ColumnDefinitions="*,Auto">
+
+                <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Name}" Classes="h2" />
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="{Binding StateText}" Classes="caption" />
+                    <TextBlock Text="{Binding BatteryText}"
+                               Classes="caption"
+                               IsVisible="{Binding HasBattery}" />
+                  </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                  <Button Classes="accent"
+                          Content="Connect"
+                          Command="{Binding ConnectCommand}"
+                          IsVisible="{Binding !IsConnected}"
+                          IsEnabled="{Binding !IsBusy}" />
+                  <Button Classes="ghost"
+                          Content="Disconnect"
+                          Command="{Binding DisconnectCommand}"
+                          IsVisible="{Binding IsConnected}"
+                          IsEnabled="{Binding !IsBusy}" />
+                </StackPanel>
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <TextBlock Text="{Binding Message}"
+                 Classes="caption"
+                 TextWrapping="Wrap"
+                 IsVisible="{Binding HasMessage}" />
+
+      <CheckBox Content="Notify on connection changes"
+                IsChecked="{Binding NotifySwitch}"
+                ToolTip.Tip="A notice at the bottom right while the module is loaded, also in the background." />
+
+      <StackPanel Spacing="6" IsVisible="{Binding HasEvents}">
+        <TextBlock Text="History" Classes="label" />
+        <ItemsControl ItemsSource="{Binding Events}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <TextBlock Text="{Binding}" Classes="caption mono" Margin="0,1" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

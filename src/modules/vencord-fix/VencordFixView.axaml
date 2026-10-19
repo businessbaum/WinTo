@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.VencordFix"
+             xmlns:sys="using:System"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.VencordFix.VencordFixView"
+             x:DataType="local:VencordFixViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.VencordFix/Styles.axaml" />
+  </UserControl.Styles>
+
+  <ScrollViewer Padding="24,18,36,24">
+    <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Left">
+
+      <!-- ============================ State ============================ -->
+      <Border Classes="card">
+        <StackPanel Spacing="14">
+
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="0" Spacing="3">
+              <TextBlock Text="{Binding SummaryText}" Classes="h2" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding VencordText}" Classes="caption muted" />
+            </StackPanel>
+
+            <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Top"
+                    IsEnabled="{Binding !IsBusy}"
+                    Command="{Binding RefreshCommand}"
+                    Content="Check again" />
+          </Grid>
+
+          <ItemsControl ItemsSource="{Binding Installs}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="local:InstallRow">
+                <Border Classes="install" Margin="0,0,0,6"
+                        Classes.installGood="{Binding IsGood}"
+                        Classes.installWork="{Binding NeedsWork}"
+                        Classes.installBad="{Binding IsBad}">
+                  <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                    <Ellipse Grid.Column="0" Width="8" Height="8" Classes="dot"
+                             VerticalAlignment="Center" Margin="0,0,12,0" />
+
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Label}" FontWeight="600" />
+                        <Border Classes="badge" Padding="8,2" IsVisible="{Binding IsNewest}">
+                          <TextBlock Text="in use" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Text="{Binding Path}" Classes="caption muted mono"
+                                 TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="2" Text="{Binding StateText}" Classes="caption"
+                               VerticalAlignment="Center" Margin="12,0,10,0" />
+
+                    <Button Grid.Column="3" Classes="ghost rowAction" Content="Show"
+                            VerticalAlignment="Center"
+                            Command="{Binding $parent[UserControl].((local:VencordFixViewModel)DataContext).RevealCommand}"
+                            CommandParameter="{Binding}" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <TextBlock Classes="caption muted" IsVisible="{Binding !HasInstalls}" TextWrapping="Wrap"
+                     Text="Searched under %LOCALAPPDATA%: Discord, DiscordPTB, DiscordCanary, DiscordDevelopment." />
+
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="accent"
+                    IsEnabled="{Binding !IsBusy}"
+                    Command="{Binding FixCommand}"
+                    Content="Patch" />
+            <Button Classes="ghost"
+                    IsEnabled="{Binding !IsBusy}"
+                    Command="{Binding LaunchCommand}"
+                    ToolTip.Tip="Patches first, then starts Discord. Electron would otherwise keep the file open."
+                    Content="Patch and start Discord" />
+            <Button Classes="ghost"
+                    IsEnabled="{Binding !IsBusy}"
+                    Command="{Binding UpdateVencordCommand}"
+                    Content="Update Vencord" />
+            <Button Classes="ghost"
+                    IsEnabled="{Binding !IsBusy}"
+                    Command="{Binding UnpatchCommand}"
+                    Content="Remove Vencord" />
+          </StackPanel>
+
+          <Border Classes="notice" Classes.noticeError="{Binding MessageIsError}"
+                  IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+          </Border>
+
+          <ItemsControl ItemsSource="{Binding Log}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="sys:String">
+                <TextBlock Text="{Binding}" Classes="caption mono muted" TextWrapping="Wrap" Margin="0,0,0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+        </StackPanel>
+      </Border>
+
+      <!-- Path and folder are facts, not explanation. Why a Discord update removes the patch is
+                      explained at the top of Discord.cs. -->
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="0" Spacing="2" Margin="0,0,12,0">
+              <TextBlock Text="patcher.js" Classes="label" />
+              <SelectableTextBlock Text="{Binding PatcherText}" Classes="mono caption muted"
+                                   TextWrapping="Wrap" />
+            </StackPanel>
+            <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center"
+                    Command="{Binding OpenVencordFolderCommand}"
+                    Content="Open folder" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

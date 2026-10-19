@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0: viewing and editing photos, opened from Explorer. Decoding through Skia, then Windows'
+       own codecs (WIC: HEIC, AVIF, TIFF, RAW, JPEG XR, DDS), then ffmpeg; editing through Skia. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Photos</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Photos</AssemblyName>
+
+    <!-- WIC over COM vtables and the clipboard: the [LibraryImport] source generator emits unsafe code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Skia comes from the host's default context, as in the Files tool; the reference is for compiling. -->
+    <PackageReference Include="SkiaSharp" ExcludeAssets="runtime;native" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" ExcludeAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The markup editor and the clipboard writer of the Capture tool, compiled in a second time: modules
+         can't share code at runtime except through MultiTool.Abstractions and MultiTool.UI. -->
+    <Compile Include="..\capture\Screenshot\ImageData.cs" Link="Shared\ImageData.cs" />
+    <Compile Include="..\capture\Screenshot\ImageEditor.cs" Link="Shared\ImageEditor.cs" />
+    <Compile Include="..\capture\Screenshot\ClipboardImage.cs" Link="Shared\ClipboardImage.cs" />
+  </ItemGroup>
+
+</Project>

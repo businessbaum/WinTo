@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MultiTool.Abstractions/MultiTool.Abstractions.csproj" />
+    <Project Path="src/MultiTool.UI/MultiTool.UI.csproj" />
+    <Project Path="src/MultiTool.Host/MultiTool.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/">
+    <Project Path="src/modules/capture/MultiTool.Modules.Capture.csproj" />
+    <Project Path="src/modules/files/MultiTool.Modules.Files.csproj" />
+    <Project Path="src/modules/apps/MultiTool.Modules.Apps.csproj" />
+    <Project Path="src/modules/storage/MultiTool.Modules.Storage.csproj" />
+    <Project Path="src/modules/soundboard/MultiTool.Modules.Soundboard.csproj" />
+    <Project Path="src/modules/system-overview/MultiTool.Modules.SystemOverview.csproj" />
+    <Project Path="src/modules/youtube/MultiTool.Modules.YouTube.csproj" />
+    <Project Path="src/modules/vencord-fix/MultiTool.Modules.VencordFix.csproj" />
+    <Project Path="src/modules/processes/MultiTool.Modules.Processes.csproj" />
+    <Project Path="src/modules/photos/MultiTool.Modules.Photos.csproj" />
+    <Project Path="src/modules/video/MultiTool.Modules.Video.csproj" />
+    <Project Path="src/modules/rgb/MultiTool.Modules.Rgb.csproj" />
+    <Project Path="src/modules/text-tools/MultiTool.Modules.TextTools.csproj" />
+  </Folder>
+</Solution>

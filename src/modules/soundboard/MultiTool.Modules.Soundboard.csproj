@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Soundboard</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Soundboard</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" />
+    <PackageReference Include="NAudio.Vorbis" />
+  </ItemGroup>
+
+  <!-- Not here, unlike in the standalone app:
+
+           BuiltInComInteropSupport. The module uses plenty of COM interop (IPolicyConfig for the
+           default microphone, ActivateAudioInterfaceAsync for process loopback), but the switch is a
+           runtime setting, and a module's .runtimeconfig.json is ignored under a load context. So it
+           must be set in the HOST, and it is.
+
+           Same for UseWindowsForms: NAudio 2.2.1 pulls in NAudio.WinForms. -->
+
+</Project>

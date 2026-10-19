@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Storage"
+             xmlns:disk="using:MultiTool.Modules.Storage.DiskUsage"
+             xmlns:dup="using:MultiTool.Modules.Storage.Duplicates"
+             xmlns:clean="using:MultiTool.Modules.Storage.Cleanup"
+             x:Class="MultiTool.Modules.Storage.StorageView"
+             x:DataType="local:StorageViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Border Grid.Row="0" Classes="sections" Margin="24,16,24,0">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="section" Classes.active="{Binding IsMap}" Command="{Binding ShowMapCommand}" Content="Disk map" />
+        <Button Classes="section" Classes.active="{Binding IsDuplicates}" Command="{Binding ShowDuplicatesCommand}" Content="Duplicates" />
+        <Button Classes="section" Classes.active="{Binding IsCleanup}" Command="{Binding ShowCleanupCommand}" Content="Cleanup" />
+      </StackPanel>
+    </Border>
+
+    <!-- Both stay in the tree: a running scan and a finished search survive switching. -->
+    <disk:DiskUsageView Grid.Row="1" DataContext="{Binding Map}" IsVisible="{Binding $parent[UserControl].((local:StorageViewModel)DataContext).IsMap}" />
+    <dup:DuplicateFinderView Grid.Row="1" DataContext="{Binding Duplicates}" IsVisible="{Binding $parent[UserControl].((local:StorageViewModel)DataContext).IsDuplicates}" />
+    <clean:CleanupView Grid.Row="1" DataContext="{Binding Cleanup}" IsVisible="{Binding $parent[UserControl].((local:StorageViewModel)DataContext).IsCleanup}" />
+  </Grid>
+</UserControl>

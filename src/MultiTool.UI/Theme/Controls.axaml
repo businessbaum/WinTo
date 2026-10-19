@@ -1,0 +1,404 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:ui="using:MultiTool.UI"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ================= Typography ================= -->
+
+  <Style Selector="TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="22" />
+    <Setter Property="FontWeight" Value="600" />
+    <Setter Property="LetterSpacing" Value="-0.4" />
+  </Style>
+
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="600" />
+    <Setter Property="LetterSpacing" Value="-0.1" />
+  </Style>
+
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="600" />
+    <Setter Property="LetterSpacing" Value="0.8" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.label">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="500" />
+  </Style>
+
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.mono">
+    <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, monospace" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
+  <Style Selector="SelectableTextBlock.mono">
+    <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, monospace" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
+  <!-- Inter renders "&lt;=&gt;" as a single arrow ligature, which hides characters that are
+       really there (e.g. in a character set field). -->
+  <Style Selector="TextBox.mono">
+    <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, monospace" />
+  </Style>
+
+  <!-- ================= Surfaces ================= -->
+
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="Padding" Value="18" />
+  </Style>
+
+  <Style Selector="Border.divider">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="Margin" Value="0,14" />
+  </Style>
+
+  <!-- ================= Buttons ================= -->
+
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="14,8" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <!-- Soft transitions. -->
+  <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Transitions">
+      <Transitions>
+        <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.13" />
+        <ui:SmoothBrushTransition Property="BorderBrush" Duration="0:0:0.13" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+
+  <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+
+  <Style Selector="Button.accent">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+    <Setter Property="FontWeight" Value="600" />
+  </Style>
+  <Style Selector="Button.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource OnAccentBrush}" />
+  </Style>
+  <Style Selector="Button.accent:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentPressedBrush}" />
+  </Style>
+
+  <Style Selector="Button.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Button.danger">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+  <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DangerSoftBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerBrush}" />
+  </Style>
+
+  <!-- Square icon button. MinHeight/MinWidth 0, otherwise the base style forces 36 px and
+       stretches the icon. -->
+  <Style Selector="Button.icon">
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusSm}" />
+  </Style>
+
+  <!-- ToggleButtons. "Button.ghost" doesn't match a ToggleButton (a selector names the exact type), so
+       without these a toggle drew Fluent's gray box with a system-accent fill when on. Classes only, not
+       every ToggleButton: the control center tiles and the soundboard style their own.
+         toggle  a normal button that stays highlighted while on
+         ghost   transparent until hovered, highlighted while on
+         icon    square, combined with ghost -->
+  <Style Selector="ToggleButton.toggle, ToggleButton.ghost">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="14,8" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.icon">
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusSm}" />
+  </Style>
+  <Style Selector="ToggleButton.toggle /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.ghost /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Transitions">
+      <Transitions>
+        <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.13" />
+        <ui:SmoothBrushTransition Property="BorderBrush" Duration="0:0:0.13" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.toggle:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.toggle:pressed /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.ghost:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.toggle:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.ghost:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.toggle:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.ghost:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.toggle:checked PathIcon, ToggleButton.ghost:checked PathIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}" />
+  </Style>
+
+  <!-- ================= Icons ================= -->
+
+  <Style Selector="PathIcon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="PathIcon.muted">
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="PathIcon.onAccent">
+    <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+  </Style>
+  <Style Selector="PathIcon.small">
+    <Setter Property="Width" Value="14" />
+    <Setter Property="Height" Value="14" />
+  </Style>
+  <Style Selector="PathIcon.large">
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Height" Value="22" />
+  </Style>
+
+  <!-- ================= Inputs ================= -->
+
+  <Style Selector="TextBox">
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Padding" Value="10,7" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+
+  <!-- Borderless TextBox for search fields. Targets the template border because Fluent sets
+       its background per state. -->
+  <Style Selector="TextBox.plain /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="TextBox.plain">
+    <Setter Property="Padding" Value="0,6" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+
+  <Style Selector="Border.search">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="10,0" />
+    <Setter Property="Height" Value="38" />
+  </Style>
+
+  <Style Selector="ComboBox">
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Cursor" Value="Hand" />
+    <!-- Avalonia aligns ComboBox to the top by default. -->
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Avalonia 12 writes "On"/"Off" next to every switch; the row label already says it. -->
+  <Style Selector="ToggleSwitch">
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="OnContent" Value="" />
+    <Setter Property="OffContent" Value="" />
+  </Style>
+
+  <Style Selector="CheckBox">
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+
+  <!-- ================= Badges ================= -->
+
+  <Style Selector="Border.badge">
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusPill}" />
+    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Border.badge > TextBlock">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <!-- ================= Overlays ================= -->
+
+  <!-- Anything floating over the page: one step lighter surface, a clear border and a wide
+       shadow. Two grays a few percent apart read as one surface. -->
+  <Style Selector="ToolTip">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="12,9" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="MaxWidth" Value="360" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <!-- No shadow: in Avalonia 12 the frame is the template's outer Border, and a shadow on the inner
+       ContentPresenter drew a second frame inside it. The popup window would clip an outer one. -->
+
+  <!-- Above the control instead of at the pointer. At the bottom of the screen a pointer tooltip
+       flips up over the control and swallows the click meant for it. The default offset of 20
+       is for pointer placement and would push it back down over the control. -->
+  <Style Selector=":is(Button), ComboBox, Slider, ToggleSwitch, CheckBox, TextBox">
+    <Setter Property="ToolTip.Placement" Value="Top" />
+    <Setter Property="ToolTip.VerticalOffset" Value="-6" />
+  </Style>
+
+  <!-- ================= Scroll bars ================= -->
+
+  <Style Selector="ScrollViewer">
+    <Setter Property="AllowAutoHide" Value="True" />
+  </Style>
+
+  <!-- Room for the scroll bar. Avalonia draws it over the content, so an expanded bar covers
+       the right edge of list items. A class, not the bare selector: that would also hit the
+       ScrollViewer inside TextBox and shrink its text area. -->
+  <Style Selector="ScrollViewer.list">
+    <Setter Property="Padding" Value="0,0,12,0" />
+  </Style>
+
+  <!-- Same inside a ListBox, where the scroll viewer lives in the template. -->
+  <Style Selector="ListBox /template/ ScrollViewer">
+    <Setter Property="Padding" Value="0,0,10,0" />
+  </Style>
+
+  <!-- ================= Sections of a tool (since 0.13.0) ================= -->
+  <!-- A tool made of several parts (Capture: screenshot and recording) switches between them with a
+       segmented bar. Deliberately different from the pill rows inside a part, so two levels read as two. -->
+  <Style Selector="Border.sections">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="11" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+
+  <Style Selector="Button.section">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="16,6" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.section /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.section:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+  <Style Selector="Button.section.active">
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="FontWeight" Value="600" />
+  </Style>
+  <Style Selector="Button.section.active /template/ ContentPresenter#PART_ContentPresenter, Button.section.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+</Styles>

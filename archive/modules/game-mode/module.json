@@ -1,0 +1,31 @@
+{
+  "id": "game-mode",
+  "name": "Game mode",
+  "summary": "Power plan for gaming.",
+  "version": "1.0.0",
+  "minHostVersion": "0.10.0",
+  "category": "System",
+  "order": 15,
+
+  "icon": "M7 7a5 5 0 0 0-4.9 6L3 18a2.6 2.6 0 0 0 4.6 1.1L9.4 17h5.2l1.8 2.1A2.6 2.6 0 0 0 21 18l.9-5A5 5 0 0 0 17 7H7Zm1 3a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2H9v1a1 1 0 1 1-2 0v-1H6a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Zm8 0a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Zm-2 2.6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z",
+  "accent": "#5BC46A",
+
+  "assembly": "MultiTool.Modules.GameMode.dll",
+  "entryType": "MultiTool.Modules.GameMode.GameModeModule",
+
+  "keywords": ["game", "games", "gaming", "game mode", "power", "power plan", "high performance",
+               "performance", "ultimate performance", "plan", "battery"],
+
+  "elevation": "onDemand",
+  "keepsRunning": true,
+
+  "closePrompt": {
+    "hint": "Automatic switching only works while the module is open. Closing restores the previous power plan.",
+    "keep": "Keep open",
+    "close": "Close"
+  },
+
+  "status": {
+    "kind": "none"
+  }
+}

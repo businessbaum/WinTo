@@ -1,0 +1,52 @@
+<Project>
+
+  <!-- A targets file, not props: the SDK's default item groups (the "**/*" None glob) are
+              created AFTER the project body, so <None Update="module.json"> in a props file would
+              silently match nothing. Update, not Include: Include would add the file twice. -->
+
+  <ItemGroup>
+    <None Update="module.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- A module without a manifest is invisible to the host; better to say so at build time. -->
+  <Target Name="ModuleManifestRequired" BeforeTargets="Build">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\module.json')"
+           Text="The module has no module.json. Without a manifest the host cannot find it." />
+  </Target>
+
+  <!-- Guard against the costliest mistake of this setup, right where it happens: a single
+           Avalonia*.dll (or a copy of the contract) in the module folder makes the module load its
+           own copy, and "Object of type 'Control' cannot be converted to type 'Control'" follows
+           at runtime. Caused by a missing ExcludeAssets/Private=false on a reference. -->
+  <Target Name="ModuleMustNotShipSharedAssemblies" AfterTargets="Build">
+    <ItemGroup>
+      <!-- Wildcards, not fixed paths: an Include without wildcard creates the item even if the
+                      file doesn't exist, and the check would always fire. -->
+      <_SharedInModule Include="$(OutputPath)Avalonia*.dll" />
+      <_SharedInModule Include="$(OutputPath)MultiTool.Abstraction?.dll" />
+      <_SharedInModule Include="$(OutputPath)MultiTool.U?.dll" />
+      <_SharedInModule Include="$(OutputPath)CommunityToolkit.Mvv?.dll" />
+
+      <!-- Skia and HarfBuzz are shared too. ExcludeAssets="runtime" lets runtimes/<rid>/native/
+                   through (NuGet's separate "native" category); the first module using Skia weighed
+                   290 MB. Hence both the managed DLL and the natives below. The "**" hangs directly on
+                   the output path: in the middle of a path MSBuild keeps it as a literal item. -->
+      <_SharedInModule Include="$(OutputPath)SkiaSharp*.dll" />
+      <_SharedInModule Include="$(OutputPath)HarfBuzzSharp*.dll" />
+      <_SharedInModule Include="$(OutputPath)**\libSkiaSharp.*" />
+      <_SharedInModule Include="$(OutputPath)**\libHarfBuzzSharp.*" />
+    </ItemGroup>
+    <!-- Native libraries for Linux and macOS, never loaded by a Windows app. PDFtoImage
+               brought 76 MB of them for the metadata module (98 instead of 6 MB). -->
+    <ItemGroup>
+      <_ForeignNative Include="$(OutputPath)**\*.so" />
+      <_ForeignNative Include="$(OutputPath)**\*.dylib" />
+    </ItemGroup>
+    <Error Condition="'@(_ForeignNative)' != ''"
+           Text="Native libraries for Linux or macOS in the module folder: @(_ForeignNative->'%(RecursiveDir)%(Filename)%(Extension)', ', '). Switch off the package with ExcludeAssets=&quot;all&quot; (see metadata-cleaner) and empty build\modules\&lt;id> once; the build doesn't remove old files." />
+
+    <Error Condition="'@(_SharedInModule)' != ''"
+           Text="Shared assemblies in the module folder: @(_SharedInModule->'%(Filename)%(Extension)', ', '). They belong only in the host's default context. The reference lacks ExcludeAssets=&quot;runtime&quot; (PackageReference) or Private=&quot;false&quot; (ProjectReference)." />
+  </Target>
+
+</Project>

@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Files"
+             xmlns:conv="using:MultiTool.Modules.Files.Convert"
+             xmlns:meta="using:MultiTool.Modules.Files.Metadata"
+             x:Class="MultiTool.Modules.Files.FilesView"
+             x:DataType="local:FilesViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Border Grid.Row="0" Classes="sections" Margin="24,16,24,0">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="section" Classes.active="{Binding IsConvert}" Command="{Binding ShowConvertCommand}" Content="Convert" />
+        <Button Classes="section" Classes.active="{Binding IsMetadata}" Command="{Binding ShowMetadataCommand}" Content="Remove metadata" />
+      </StackPanel>
+    </Border>
+
+    <!-- Both stay in the tree: a running batch survives switching. -->
+    <conv:ImageConvertView Grid.Row="1" DataContext="{Binding Convert}" IsVisible="{Binding $parent[UserControl].((local:FilesViewModel)DataContext).IsConvert}" />
+    <meta:MetadataCleanerView Grid.Row="1" DataContext="{Binding Metadata}" IsVisible="{Binding $parent[UserControl].((local:FilesViewModel)DataContext).IsMetadata}" />
+  </Grid>
+</UserControl>

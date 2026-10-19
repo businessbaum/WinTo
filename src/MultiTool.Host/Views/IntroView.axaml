@@ -1,0 +1,611 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiTool.Host.ViewModels"
+             xmlns:f="using:MultiTool.Host.Features"
+             xmlns:ui="using:MultiTool.UI"
+             x:Class="MultiTool.Host.Views.IntroView"
+             x:DataType="vm:IntroViewModel">
+
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding CloseCommand}" />
+    <KeyBinding Gesture="Right" Command="{Binding NextCommand}" />
+    <KeyBinding Gesture="Left" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.introTitle">
+      <Setter Property="FontSize" Value="32" />
+      <Setter Property="FontWeight" Value="700" />
+      <Setter Property="LetterSpacing" Value="-0.8" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.introText">
+      <Setter Property="FontSize" Value="15.5" />
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="MaxWidth" Value="580" />
+      <Setter Property="LineHeight" Value="24" />
+    </Style>
+
+    <Style Selector="StackPanel.page">
+      <Setter Property="Spacing" Value="16" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="MaxWidth" Value="760" />
+    </Style>
+
+    <!-- The illustrations are small mock-ups scaled up; vectors stay sharp. -->
+    <Style Selector="LayoutTransformControl.art">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+      <Setter Property="LayoutTransform" Value="scale(1.3)" />
+      <Setter Property="ClipToBounds" Value="False" />
+    </Style>
+
+    <!-- What can be done on a page: switches, a try-it box. -->
+    <Style Selector="Border.introCard">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="16,12" />
+      <Setter Property="MinWidth" Value="460" />
+      <Setter Property="MaxWidth" Value="620" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.featureIcon">
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    </Style>
+    <Style Selector="Border.featureIcon PathIcon">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="16" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}" />
+    </Style>
+
+    <!-- Try it: an accent box with a breathing dot, green with a check once done. -->
+    <Style Selector="Border.tryIt">
+      <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="MinWidth" Value="460" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.3" />
+          <ui:SmoothBrushTransition Property="BorderBrush" Duration="0:0:0.3" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.tryIt.done">
+      <Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}" />
+    </Style>
+    <Style Selector="Ellipse.pulse">
+      <Setter Property="Width" Value="10" />
+      <Setter Property="Height" Value="10" />
+      <Setter Property="Fill" Value="{DynamicResource AccentBrush}" />
+      <Style.Animations>
+        <Animation Duration="0:0:1.4" IterationCount="Infinite">
+          <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+          <KeyFrame Cue="50%"><Setter Property="Opacity" Value="0.2" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Progress along the top: a segment per page, lit up to the current one. -->
+    <Style Selector="Button.step">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="2,8" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="MinWidth" Value="0" />
+    </Style>
+    <Style Selector="Button.step /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.segment">
+      <Setter Property="Width" Value="46" />
+      <Setter Property="Height" Value="4" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.25" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.segment.done">
+      <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}" />
+    </Style>
+    <Style Selector="Border.segment.active">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Button.step:pointerover Border.segment">
+      <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+    </Style>
+
+    <!-- Small mock-ups that hint at the real thing. -->
+    <Style Selector="Border.mockCard">
+      <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="12" />
+      <Setter Property="BoxShadow" Value="0 12 30 0 #80000000" />
+    </Style>
+    <Style Selector="Border.mockTile">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="10,8" />
+    </Style>
+    <Style Selector="Border.mockTile.on">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Border.mockTile.on TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+    </Style>
+    <Style Selector="Border.mockLine">
+      <Setter Property="Height" Value="6" />
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+
+    <!-- Movement: the logo floats, rows slide in, a key presses itself. Started each time a page shows. -->
+    <Style Selector="ui|LogoMark.float">
+      <Style.Animations>
+        <Animation Duration="0:0:4" IterationCount="Infinite" Easing="SineEaseInOut">
+          <KeyFrame Cue="0%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+          <KeyFrame Cue="50%"><Setter Property="TranslateTransform.Y" Value="-10" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <!-- FillMode Both holds the first frame during a delay; without an Opacity setter a row stays visible
+         should an animation not run. -->
+    <Style Selector="Border.slideIn:not(.second):not(.third)">
+      <Style.Animations>
+        <Animation Duration="0:0:0.45" FillMode="Both" Easing="CubicEaseOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="TranslateTransform.Y" Value="14" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="TranslateTransform.Y" Value="0" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Border.slideIn.second">
+      <Style.Animations>
+        <Animation Duration="0:0:0.45" Delay="0:0:0.12" FillMode="Both" Easing="CubicEaseOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="TranslateTransform.Y" Value="14" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="TranslateTransform.Y" Value="0" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Border.slideIn.third">
+      <Style.Animations>
+        <Animation Duration="0:0:0.45" Delay="0:0:0.24" FillMode="Both" Easing="CubicEaseOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="TranslateTransform.Y" Value="14" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="TranslateTransform.Y" Value="0" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Border.keyPress">
+      <Style.Animations>
+        <Animation Duration="0:0:2.2" IterationCount="Infinite">
+          <KeyFrame Cue="0%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+          <KeyFrame Cue="55%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+          <KeyFrame Cue="62%"><Setter Property="TranslateTransform.Y" Value="3" /></KeyFrame>
+          <KeyFrame Cue="72%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="TranslateTransform.Y" Value="0" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <Style Selector="Button.swatch">
+      <Setter Property="Width" Value="38" />
+      <Setter Property="Height" Value="38" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="CornerRadius" Value="19" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.swatch /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+    <Style Selector="Button.swatch.selected /template/ ContentPresenter#PART_ContentPresenter, Button.swatch.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.toolTile">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="12,10" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Top" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="Margin" Value="4" />
+    </Style>
+  </UserControl.Styles>
+
+  <UserControl.DataTemplates>
+    <!-- A feature with its own switch: the same object as on the Features page. -->
+    <DataTemplate DataType="f:Feature">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,5">
+        <Border Classes="featureIcon" VerticalAlignment="Center">
+          <PathIcon Data="{Binding Icon}" />
+        </Border>
+        <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding Detail}" Classes="caption muted" TextTrimming="CharacterEllipsis"
+                     IsVisible="{Binding Detail, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+        <ToggleSwitch Grid.Column="2" IsChecked="{Binding IsEnabled}" OnContent="" OffContent=""
+                      VerticalAlignment="Center" MinWidth="0" />
+      </Grid>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <!-- The whole content area of the window, opaque: the tour is a page of the app, not a dialog
+       over it. The header with the window buttons stays above. -->
+  <!-- The top row has a fixed height: "Skip" goes on the last page, the progress bar stays put. -->
+  <Grid Background="{DynamicResource BgBaseBrush}" RowDefinitions="58,*,Auto">
+
+    <!-- A soft glow in the accent color behind the content; follows the accent, also the one picked here. -->
+    <Border Grid.RowSpan="3" Background="{DynamicResource AccentBrush}" Opacity="0.16" IsHitTestVisible="False">
+      <Border.OpacityMask>
+        <RadialGradientBrush Center="50%,42%" GradientOrigin="50%,42%" RadiusX="55%" RadiusY="55%">
+          <GradientStop Offset="0" Color="#FFFFFFFF" />
+          <GradientStop Offset="1" Color="#00FFFFFF" />
+        </RadialGradientBrush>
+      </Border.OpacityMask>
+    </Border>
+
+    <!-- ============ Progress and skip ============ -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" Margin="24,14,24,0">
+      <ItemsControl Grid.Column="1" ItemsSource="{Binding Steps}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="2" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:IntroStep">
+            <Button Classes="step" ToolTip.Tip="{Binding Title}"
+                    Command="{Binding $parent[ItemsControl].((vm:IntroViewModel)DataContext).GoToCommand}"
+                    CommandParameter="{Binding}">
+              <Border Classes="segment" Classes.active="{Binding IsActive}" Classes.done="{Binding IsDone}" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Button Grid.Column="2" Classes="ghost" Content="Skip" HorizontalAlignment="Right"
+              Command="{Binding CloseCommand}" IsVisible="{Binding !IsLast}"
+              ToolTip.Tip="Settings → About shows the introduction again." />
+    </Grid>
+
+    <Carousel Grid.Row="1" SelectedIndex="{Binding Page}" Margin="24,0">
+      <Carousel.PageTransition>
+        <CompositePageTransition>
+          <PageSlide Duration="0:0:0.32" Orientation="Horizontal" SlideInEasing="CubicEaseOut" SlideOutEasing="CubicEaseOut" />
+          <CrossFade Duration="0:0:0.26" />
+        </CompositePageTransition>
+      </Carousel.PageTransition>
+
+      <!-- ============ 1: Welcome ============ -->
+      <StackPanel Classes="page">
+        <ui:LogoMark Classes="float" Width="120" Height="120" HorizontalAlignment="Center" Margin="0,0,0,18" />
+        <TextBlock Text="Welcome to WinTo" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="Fixes for what gets in the way on Windows, running quietly in the tray, and tools for when they are needed. Seven short steps switch on what is wanted; everything stays changeable later." />
+        <WrapPanel HorizontalAlignment="Center" Margin="0,8,0,0">
+          <Border Classes="mockTile slideIn" Margin="4"><TextBlock Text="Clipboard history" FontSize="12.5" /></Border>
+          <Border Classes="mockTile slideIn second" Margin="4"><TextBlock Text="Screenshots" FontSize="12.5" /></Border>
+          <Border Classes="mockTile slideIn third" Margin="4"><TextBlock Text="Shortcuts" FontSize="12.5" /></Border>
+          <Border Classes="mockTile slideIn" Margin="4"><TextBlock Text="Control center" FontSize="12.5" /></Border>
+          <Border Classes="mockTile slideIn second" Margin="4"><TextBlock Text="Less noise" FontSize="12.5" /></Border>
+          <Border Classes="mockTile slideIn third" Margin="4"><TextBlock Text="Tools" FontSize="12.5" /></Border>
+        </WrapPanel>
+      </StackPanel>
+
+      <!-- ============ 2: Look ============ -->
+      <StackPanel Classes="page">
+        <ui:LogoMark Width="72" Height="72" HorizontalAlignment="Center" Margin="0,0,0,8" />
+        <TextBlock Text="Make it yours" Classes="introTitle" />
+        <TextBlock Classes="introText" Text="A color for buttons, switches and selections. The app changes at once." />
+        <ItemsControl ItemsSource="{Binding Accents}" HorizontalAlignment="Center" Margin="0,4,0,4">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="8" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:AccentChoice">
+              <Button Classes="swatch" Classes.selected="{Binding IsSelected}" ToolTip.Tip="{Binding Name}"
+                      Command="{Binding $parent[ItemsControl].((vm:IntroViewModel)DataContext).ChooseAccentCommand}"
+                      CommandParameter="{Binding}">
+                <Border CornerRadius="15" Background="{Binding Brush}" />
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Border Classes="introCard">
+          <StackPanel Spacing="4">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Start with Windows" FontWeight="600" />
+                <TextBlock Text="In the tray, without a window: shortcuts work from the first minute." Classes="caption muted" TextWrapping="Wrap" />
+              </StackPanel>
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" OnContent="" OffContent="" MinWidth="0" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Text="{Binding AutostartProblem}" Classes="caption" Foreground="{DynamicResource DangerBrush}"
+                       IsVisible="{Binding AutostartProblem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 3: Clipboard ============ -->
+      <StackPanel Classes="page">
+        <LayoutTransformControl Classes="art">
+          <Border Classes="mockCard" Width="290">
+            <StackPanel Spacing="6">
+              <Border Classes="mockTile" Padding="8,5">
+                <TextBlock Text="Search the clipboard history" FontSize="10.5" Foreground="{DynamicResource TextMutedBrush}" />
+              </Border>
+              <Border Classes="mockTile slideIn" Padding="8,6" Background="{DynamicResource AccentSoftBrush}">
+                <Grid ColumnDefinitions="Auto,*">
+                  <TextBlock Text="1" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,8,0" />
+                  <TextBlock Grid.Column="1" Text="Meeting moved to Thursday, 14:00" FontSize="11" />
+                </Grid>
+              </Border>
+              <Border Classes="mockTile slideIn second" Padding="8,6">
+                <Grid ColumnDefinitions="Auto,Auto,*">
+                  <TextBlock Text="2" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,8,0" />
+                  <Border Grid.Column="1" Width="34" Height="20" CornerRadius="4" Background="#4C8DFF" />
+                  <TextBlock Grid.Column="2" Text="Image · 1920 × 1080" FontSize="10" Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedBrush}" />
+                </Grid>
+              </Border>
+              <Border Classes="mockTile slideIn third" Padding="8,6">
+                <Grid ColumnDefinitions="Auto,*">
+                  <TextBlock Text="3" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,8,0" />
+                  <TextBlock Grid.Column="1" Text="https://github.com/…" FontSize="11" />
+                </Grid>
+              </Border>
+            </StackPanel>
+          </Border>
+        </LayoutTransformControl>
+        <TextBlock Text="Everything copied, one shortcut away" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="Win+V opens the history at the mouse pointer: text with its formatting, images and files. Type to search, Ctrl+1 to 9 pastes, pinned entries stay." />
+        <Border Classes="introCard">
+          <ContentControl Content="{Binding Clipboard}" />
+        </Border>
+        <Border Classes="tryIt" Classes.done="{Binding ClipboardTried}">
+          <Grid ColumnDefinitions="Auto,*">
+            <Panel Width="18" Margin="0,0,10,0" VerticalAlignment="Center">
+              <Ellipse Classes="pulse" IsVisible="{Binding !ClipboardTried}" />
+              <PathIcon Data="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7Z" Width="16" Height="16"
+                        Foreground="{DynamicResource SuccessBrush}" IsVisible="{Binding ClipboardTried}" />
+            </Panel>
+            <TextBlock Grid.Column="1" Text="Try it: copy something, then press Win+V." IsVisible="{Binding !ClipboardTried}" TextWrapping="Wrap" />
+            <TextBlock Grid.Column="1" Text="Worked. Enter pastes, Esc closes." IsVisible="{Binding ClipboardTried}" TextWrapping="Wrap" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 4: Screenshots ============ -->
+      <StackPanel Classes="page">
+        <LayoutTransformControl Classes="art">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Border Classes="mockTile" Padding="14,10"><TextBlock Text="Win" FontWeight="600" FontSize="16" /></Border>
+            <TextBlock Text="+" FontSize="20" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedBrush}" />
+            <Border Classes="mockTile" Padding="14,10"><TextBlock Text="Shift" FontWeight="600" FontSize="16" /></Border>
+            <TextBlock Text="+" FontSize="20" VerticalAlignment="Center" Foreground="{DynamicResource TextMutedBrush}" />
+            <Border Classes="mockTile on keyPress" Padding="16,10"><TextBlock Text="S" FontWeight="600" FontSize="16" /></Border>
+          </StackPanel>
+        </LayoutTransformControl>
+        <TextBlock Text="Screenshots in one move" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="Drag a region: it lands in the clipboard and the Screenshots folder, and a card opens it in the editor with arrows, boxes, text, pixelation and crop." />
+        <Border Classes="introCard">
+          <ContentControl Content="{Binding Screenshot}" />
+        </Border>
+        <Border Classes="tryIt" Classes.done="{Binding ScreenshotTried}">
+          <Grid ColumnDefinitions="Auto,*">
+            <Panel Width="18" Margin="0,0,10,0" VerticalAlignment="Center">
+              <Ellipse Classes="pulse" IsVisible="{Binding !ScreenshotTried}" />
+              <PathIcon Data="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7Z" Width="16" Height="16"
+                        Foreground="{DynamicResource SuccessBrush}" IsVisible="{Binding ScreenshotTried}" />
+            </Panel>
+            <TextBlock Grid.Column="1" Text="Try it: press Win+Shift+S and drag over anything." IsVisible="{Binding !ScreenshotTried}" TextWrapping="Wrap" />
+            <TextBlock Grid.Column="1" Text="Worked. The card at the top right opens it in the editor." IsVisible="{Binding ScreenshotTried}" TextWrapping="Wrap" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 5: Shortcuts ============ -->
+      <StackPanel Classes="page">
+        <TextBlock Text="Shortcuts for the small things" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="Each works in any program. A combination another program holds falls back to the next free one; the line under the name says which." />
+        <Border Classes="introCard" Margin="0,6,0,0">
+          <ItemsControl ItemsSource="{Binding Shortcuts}" />
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 6: Control center ============ -->
+      <StackPanel Classes="page">
+        <LayoutTransformControl Classes="art">
+          <Grid ColumnDefinitions="Auto,Auto">
+            <Border Classes="mockCard" Width="230">
+              <StackPanel Spacing="7">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                  <ui:LogoMark Width="14" Height="14" />
+                  <TextBlock Text="Control center" FontWeight="600" FontSize="11.5" />
+                </StackPanel>
+                <Border Classes="mockTile slideIn" Padding="8,6">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <PathIcon Data="M12 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm-4.2-2.8a6 6 0 0 1 8.4 0l-1.4 1.4a4 4 0 0 0-5.6 0l-1.4-1.4Zm-2.9-2.8a10 10 0 0 1 14.2 0l-1.4 1.4a8 8 0 0 0-11.4 0l-1.4-1.4ZM2 10a14 14 0 0 1 20 0l-1.4 1.4a12 12 0 0 0-17.2 0L2 10Z" Width="12" Height="12" Foreground="{DynamicResource AccentHoverBrush}" />
+                    <TextBlock Grid.Column="1" Text="Wi-Fi" FontSize="11" Margin="8,0,0,0" />
+                    <Border Grid.Column="2" Width="22" Height="12" CornerRadius="6" Background="{DynamicResource AccentBrush}" />
+                  </Grid>
+                </Border>
+                <Border Classes="mockTile slideIn second" Padding="8,6">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <PathIcon Data="M11 2v7.6L6.7 5.3 5.3 6.7 10.6 12l-5.3 5.3 1.4 1.4 4.3-4.3V22h1l5.7-5.7-4.3-4.3 4.3-4.3L12 2h-1Zm2 4.4 1.9 1.9L13 10.2V6.4Zm0 7.4 1.9 1.9-1.9 1.9v-3.8Z" Width="12" Height="12" Foreground="{DynamicResource AccentHoverBrush}" />
+                    <TextBlock Grid.Column="1" Text="Bluetooth" FontSize="11" Margin="8,0,0,0" />
+                    <Border Grid.Column="2" Width="22" Height="12" CornerRadius="6" Background="{DynamicResource AccentBrush}" />
+                  </Grid>
+                </Border>
+                <Grid ColumnDefinitions="*,*,*">
+                  <Border Grid.Column="0" Classes="mockTile on slideIn third" Height="34" Margin="0,0,3,0" />
+                  <Border Grid.Column="1" Classes="mockTile slideIn third" Height="34" Margin="2,0" />
+                  <Border Grid.Column="2" Classes="mockTile on slideIn third" Height="34" Margin="3,0,0,0" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" Margin="2,2,2,0">
+                  <Border Classes="mockLine" Background="{DynamicResource AccentBrush}" Width="110" HorizontalAlignment="Left" />
+                  <Border Classes="mockLine" Grid.ColumnSpan="2" Opacity="0.5" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- Where it lives: the tray, bottom right. -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="16,0,0,4" Spacing="6">
+              <PathIcon Data="M5 12h12l-4-4 1.4-1.4L21 13l-6.6 6.4L13 18l4-4H5v-2Z" Width="22" Height="22"
+                        Foreground="{DynamicResource AccentHoverBrush}" HorizontalAlignment="Left" />
+              <Border Classes="mockTile" Padding="8,5">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ui:LogoMark Width="16" Height="16" />
+                  <TextBlock Text="tray" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </Grid>
+        </LayoutTransformControl>
+
+        <TextBlock Text="The control center" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="One click on the WinTo icon in the taskbar tray: Wi-Fi, Bluetooth devices, sound per program, brightness for each display, dark mode. Closing the window keeps it there." />
+        <Border Classes="tryIt" Classes.done="{Binding ControlCenterTried}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <Panel Width="18" Margin="0,0,10,0" VerticalAlignment="Center">
+              <Ellipse Classes="pulse" IsVisible="{Binding !ControlCenterTried}" />
+              <PathIcon Data="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7Z" Width="16" Height="16"
+                        Foreground="{DynamicResource SuccessBrush}" IsVisible="{Binding ControlCenterTried}" />
+            </Panel>
+            <TextBlock Grid.Column="1" Text="Try it: click the WinTo icon in the tray, bottom right." VerticalAlignment="Center"
+                       IsVisible="{Binding !ControlCenterTried}" TextWrapping="Wrap" />
+            <TextBlock Grid.Column="1" Text="Worked. Esc or a click elsewhere closes it." VerticalAlignment="Center"
+                       IsVisible="{Binding ControlCenterTried}" TextWrapping="Wrap" />
+            <Button Grid.Column="2" Classes="ghost" Content="Open it here" Margin="12,0,0,0" Padding="10,4" MinHeight="0"
+                    Command="{Binding OpenControlCenterCommand}" IsVisible="{Binding !ControlCenterTried}" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 7: Declutter ============ -->
+      <StackPanel Classes="page">
+        <TextBlock Text="Less noise in Windows" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="Each switch can be turned back and then restores what was there. Some apply after Explorer restarts; Features has a button for that, and five more." />
+        <Border Classes="introCard" Margin="0,6,0,0" MaxWidth="760">
+          <ItemsControl ItemsSource="{Binding Declutter}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="2" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Styles>
+              <Style Selector="ContentPresenter">
+                <Setter Property="Margin" Value="6,0" />
+              </Style>
+            </ItemsControl.Styles>
+          </ItemsControl>
+        </Border>
+      </StackPanel>
+
+      <!-- ============ 8: Tools, done ============ -->
+      <StackPanel Classes="page">
+        <TextBlock Text="Tools when they are needed" Classes="introTitle" />
+        <TextBlock Classes="introText"
+                   Text="They load only when opened and leave nothing running once closed. A click opens one now and ends the tour." />
+        <ItemsControl ItemsSource="{Binding Tools}" MaxWidth="720" Margin="0,6,0,0">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Columns="3" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:IntroTool">
+              <Button Classes="toolTile"
+                      Command="{Binding $parent[ItemsControl].((vm:IntroViewModel)DataContext).OpenToolCommand}"
+                      CommandParameter="{Binding}">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Border Classes="featureIcon" VerticalAlignment="Top">
+                    <PathIcon Data="{Binding Icon}" />
+                  </Border>
+                  <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock Text="{Binding Name}" FontWeight="600" />
+                    <TextBlock Text="{Binding Summary}" Classes="caption muted" TextWrapping="Wrap" MaxLines="2"
+                               TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{Binding Summary}" Classes="caption" HorizontalAlignment="Center" Margin="0,6,0,0" />
+      </StackPanel>
+    </Carousel>
+
+    <!-- ============ Navigation ============ -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*" MaxWidth="760" Margin="24,0,24,32">
+      <Button Classes="ghost" Content="Back" HorizontalAlignment="Left" MinWidth="96"
+              Command="{Binding BackCommand}" IsVisible="{Binding !IsFirst}" />
+
+      <TextBlock Grid.Column="1" Text="{Binding StepText}" Classes="caption muted" VerticalAlignment="Center" />
+
+      <Button Grid.Column="2" Classes="accent" Content="{Binding NextText}" MinWidth="150"
+              HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+    </Grid>
+  </Grid>
+</UserControl>

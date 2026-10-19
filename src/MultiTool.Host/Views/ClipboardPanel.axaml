@@ -1,0 +1,160 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:clip="using:MultiTool.Host.Features.Clipboard"
+        x:Class="MultiTool.Host.Views.ClipboardPanel"
+        x:DataType="clip:ClipboardPanelViewModel"
+        Title="WinTo – Clipboard"
+        Width="468"
+        Height="588"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowDecorations="None"
+        Background="Transparent"
+        WindowStartupLocation="Manual"
+        Opacity="0">
+
+  <!-- Built like the control center: a transparent window with a card and room for its shadow. -->
+
+  <Window.Styles>
+    <Style Selector="ListBox#List">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox#List ListBoxItem">
+      <Setter Property="Padding" Value="8,8,10,8" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+      <Setter Property="CornerRadius" Value="9" />
+    </Style>
+    <Style Selector="TextBlock.clipText">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="MaxLines" Value="4" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="Border.thumb">
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.rowAction">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Opacity" Value="0.55" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover Button.rowAction, ListBoxItem:selected Button.rowAction">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="PathIcon.pinned">
+      <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}" />
+    </Style>
+
+    <!-- The row's number: Ctrl and this digit paste it. -->
+    <Style Selector="Border.number">
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="18" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Margin" Value="0,1,10,0" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.number TextBlock">
+      <Setter Property="FontSize" Value="10.5" />
+      <Setter Property="FontWeight" Value="600" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.paused">
+      <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style Selector="ToolTip TextBlock.details">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="MaxWidth" Value="460" />
+    </Style>
+  </Window.Styles>
+
+  <Border Margin="24"
+          Background="{DynamicResource BgElevatedBrush}"
+          BorderBrush="{DynamicResource BorderStrongBrush}"
+          BorderThickness="1"
+          CornerRadius="16"
+          BoxShadow="0 18 44 0 #99000000"
+          Padding="12">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+      <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+        <TextBox x:Name="Search" Text="{Binding Query}" PlaceholderText="{Binding SearchHint}" />
+        <ToggleButton Grid.Column="1" Classes="ghost icon" Margin="6,0,0,0" IsChecked="{Binding Paused}"
+                      ToolTip.Tip="Pause: new copies are not kept until resumed.">
+          <PathIcon Data="M7 5h3v14H7V5Zm7 0h3v14h-3V5Z" Width="14" Height="14" />
+        </ToggleButton>
+      </Grid>
+
+      <Border Grid.Row="1" Classes="paused" IsVisible="{Binding Paused}">
+        <TextBlock Text="Paused. New copies are not kept." FontSize="12" Foreground="{DynamicResource WarningBrush}" />
+      </Border>
+
+      <Panel Grid.Row="2">
+        <TextBlock Text="{Binding EmptyText}" Classes="caption" IsVisible="{Binding IsEmpty}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <ListBox x:Name="List" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="clip:ClipItem">
+              <Grid ColumnDefinitions="Auto,*,Auto,Auto" Background="Transparent"
+                    ToolTip.ShowDelay="700" ToolTip.Placement="Right">
+                <ToolTip.Tip>
+                  <TextBlock Classes="details" Text="{Binding Details}" />
+                </ToolTip.Tip>
+
+                <Border Classes="number" IsVisible="{Binding Number, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                  <TextBlock Text="{Binding Number}" />
+                </Border>
+                <Border Width="18" Margin="0,0,10,0"
+                        IsVisible="{Binding Number, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+
+                <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Preview}" Classes="clipText" IsVisible="{Binding !IsImage}" />
+                  <Border Classes="thumb" IsVisible="{Binding IsImage}" MaxHeight="96" MaxWidth="300">
+                    <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
+                  </Border>
+                  <TextBlock Text="{Binding Meta}" Classes="caption muted" FontSize="11.5"
+                             TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <Button Grid.Column="2" Classes="ghost icon rowAction" Margin="8,0,2,0" VerticalAlignment="Top"
+                        Command="{Binding $parent[ListBox].((clip:ClipboardPanelViewModel)DataContext).TogglePinCommand}"
+                        CommandParameter="{Binding}" ToolTip.Tip="Pin (Ctrl+P)">
+                  <PathIcon Data="{DynamicResource IconPin}" Width="13" Height="13"
+                            Classes.pinned="{Binding Pinned}" />
+                </Button>
+                <Button Grid.Column="3" Classes="ghost icon rowAction" VerticalAlignment="Top"
+                        Command="{Binding $parent[ListBox].((clip:ClipboardPanelViewModel)DataContext).RemoveCommand}"
+                        CommandParameter="{Binding}" ToolTip.Tip="Remove (Del)">
+                  <PathIcon Data="{DynamicResource IconClose}" Width="10" Height="10" />
+                </Button>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Panel>
+
+      <TextBlock Grid.Row="3" Classes="caption muted" Margin="4,10,4,0" TextTrimming="CharacterEllipsis"
+                 Text="{Binding KeysHint}" />
+    </Grid>
+  </Border>
+</Window>

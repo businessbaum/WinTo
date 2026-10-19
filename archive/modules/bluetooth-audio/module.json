@@ -1,0 +1,24 @@
+{
+  "id": "bluetooth-audio",
+  "name": "Bluetooth audio",
+  "summary": "Connect headphones in one click.",
+  "version": "1.0.0",
+  "minHostVersion": "0.11.0",
+  "category": "Audio",
+  "order": 20,
+  "icon": "M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5v-1a7 7 0 0 1 14 0v1h-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9Z",
+  "accent": "#4FA8F7",
+  "assembly": "MultiTool.Modules.BluetoothAudio.dll",
+  "entryType": "MultiTool.Modules.BluetoothAudio.BluetoothAudioModule",
+  "keywords": ["airpods", "bluetooth", "headphones", "headset", "connect", "disconnect", "battery"],
+  "elevation": "never",
+  "keepsRunning": true,
+  "closePrompt": {
+    "hint": "Notifications on connection changes only work while the module is loaded.",
+    "keep": "Keep open",
+    "close": "Close and stop"
+  },
+  "status": {
+    "kind": "none"
+  }
+}

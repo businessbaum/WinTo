@@ -1,0 +1,359 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Capture.Recording"
+             xmlns:sys="using:System"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Capture.Recording.RecorderView"
+             x:DataType="local:RecorderViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Capture/Recording/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="380,*" Margin="24,18,24,24">
+
+    <!-- ========================= Settings ========================= -->
+    <ScrollViewer Grid.Column="0" Margin="0,0,16,0">
+      <StackPanel Spacing="16">
+
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Video" Classes="h2" />
+
+            <StackPanel Spacing="4">
+              <TextBlock Text="Area" Classes="label" />
+              <ComboBox ItemsSource="{Binding Areas}"
+                        SelectedItem="{Binding SelectedArea}"
+                        HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:CaptureArea">
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Spacing="4" Margin="0,0,12,0">
+                <TextBlock Text="Frames per second" Classes="label" />
+                <ComboBox ItemsSource="{Binding FrameRates}"
+                          SelectedItem="{Binding FramesPerSecond}"
+                          HorizontalAlignment="Stretch" />
+              </StackPanel>
+              <CheckBox Grid.Column="1" IsChecked="{Binding CaptureCursor}"
+                        Content="Cursor" VerticalAlignment="Bottom" Margin="0,0,0,6" />
+            </Grid>
+
+            <StackPanel Spacing="4">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Quality" Classes="label" />
+                <TextBlock Grid.Column="1" Text="{Binding Quality}" Classes="mono" />
+              </Grid>
+              <Slider Minimum="16" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True"
+                      Value="{Binding Quality}"
+                      ToolTip.Tip="Constant quality: lower means better image and larger file. Typical 23, near-lossless 18, acceptable 28." />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+              <TextBlock Text="Encoder" Classes="label" />
+              <!-- Two lines: name on top, reason below. A picker listing "h264_nvenc" and "libx264"
+                                      would require knowledge nobody needs to have. -->
+              <ComboBox ItemsSource="{Binding Encoders}"
+                        SelectedItem="{Binding SelectedEncoder}"
+                        HorizontalAlignment="Stretch"
+                        ToolTip.Tip="Only encoders tested on this computer with a single frame are listed. If one fails while recording, libx264 takes over.">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:EncoderChoice">
+                    <StackPanel Spacing="1" Margin="0,2">
+                      <TextBlock Text="{Binding Label}" />
+                      <TextBlock Text="{Binding Hint}" Classes="caption muted"
+                                 TextWrapping="Wrap" MaxWidth="280" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Audio" Classes="h2" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="ghost"
+                      Command="{Binding RefreshDevicesCommand}"
+                      Content="Rescan" />
+            </Grid>
+
+            <!-- System audio comes first, above the recording devices: it's what almost everyone
+                                  means by "audio". -->
+            <Border Classes="systemAudio" Classes.systemAudioOn="{Binding SystemAudioEnabled}">
+              <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="Auto,*">
+                  <CheckBox Grid.Column="0" IsChecked="{Binding SystemAudioEnabled}" Margin="0,0,8,0"
+                            VerticalAlignment="Top" />
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="System audio" FontWeight="600" />
+                    <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                               Text="Everything this PC plays." />
+                  </StackPanel>
+                </Grid>
+
+                <ComboBox ItemsSource="{Binding RenderDevices}"
+                          SelectedItem="{Binding SelectedRenderDevice}"
+                          IsEnabled="{Binding SystemAudioEnabled}"
+                          HorizontalAlignment="Stretch"
+                          ToolTip.Tip="Default output follows the Windows setting. A fixed device captures only its output and goes silent once sound plays elsewhere.">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="local:RenderDevice">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                        <Border Classes="badge" Padding="7,1" VerticalAlignment="Center"
+                                IsVisible="{Binding IsDefault}">
+                          <TextBlock Text="Default" />
+                        </Border>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Classes="caption muted" TextWrapping="Wrap" Margin="2,0,0,0"
+                           IsVisible="{Binding FollowsDefaultRender}">
+                  <Run Text="Currently:" />
+                  <Run Text="{Binding DefaultRenderName, Mode=OneWay}" />
+                </TextBlock>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="Recording devices" Classes="label" />
+
+            <ItemsControl ItemsSource="{Binding AudioChoices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:AudioChoice">
+                  <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,4">
+                    <CheckBox Grid.Column="0" IsChecked="{Binding Selected}" Margin="0,0,8,0" />
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}" />
+                    <Border Grid.Column="2" Classes="badge" Padding="8,2" VerticalAlignment="Center"
+                            IsVisible="{Binding LooksLikeLoopback}">
+                      <TextBlock Text="Loopback" />
+                    </Border>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                       Text="Mixed into one track with the system audio." />
+
+            <!-- Levels. No equalizer: loudness is adjusted, not frequency response. -->
+            <Border Classes="systemAudio" Classes.systemAudioOn="{Binding LevelMatch}">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="Auto,*">
+                  <CheckBox Grid.Column="0" IsChecked="{Binding LevelMatch}" Margin="0,0,8,0"
+                            IsEnabled="{Binding IsIdle}" VerticalAlignment="Top" />
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="Match levels" FontWeight="600" />
+                    <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                               Text="Microphone and system audio at the same loudness." />
+                  </StackPanel>
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,Auto" IsEnabled="{Binding IsIdle}">
+                  <TextBlock Grid.Column="0" Text="Microphone" Classes="label"
+                             VerticalAlignment="Center" Margin="0,0,12,0" Width="88" />
+                  <Slider Grid.Column="1" Minimum="-12" Maximum="12" TickFrequency="1"
+                          IsSnapToTickEnabled="True" Value="{Binding DeviceGainDb}" />
+                  <TextBlock Grid.Column="2" Classes="mono" VerticalAlignment="Center"
+                             Margin="12,0,0,0" Width="56" TextAlignment="Right"
+                             Text="{Binding DeviceGainText}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,Auto" IsEnabled="{Binding IsIdle}">
+                  <TextBlock Grid.Column="0" Text="System audio" Classes="label"
+                             VerticalAlignment="Center" Margin="0,0,12,0" Width="88" />
+                  <Slider Grid.Column="1" Minimum="-12" Maximum="12" TickFrequency="1"
+                          IsSnapToTickEnabled="True" Value="{Binding SystemGainDb}" />
+                  <TextBlock Grid.Column="2" Classes="mono" VerticalAlignment="Center"
+                             Margin="12,0,0,0" Width="56" TextAlignment="Right"
+                             Text="{Binding SystemGainText}" />
+                </Grid>
+
+                <TextBlock Classes="caption muted" TextWrapping="Wrap" Margin="2,0,0,0"
+                           Text="Applies from the next start." />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Output folder" Classes="h2" />
+            <SelectableTextBlock Text="{Binding TargetDirectory}" Classes="mono caption muted" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="ghost" Command="{Binding PickFolderCommand}" Content="Choose" />
+              <Button Classes="ghost" Command="{Binding OpenFolderCommand}" Content="Open" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ====================== Recording and buffer ====================== -->
+    <ScrollViewer Grid.Column="1" Classes="list">
+      <StackPanel Spacing="16">
+
+        <Border Classes="card" Classes.live="{Binding !IsIdle}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+
+            <Ellipse Grid.Column="0" Width="12" Height="12" Classes="rec"
+                     VerticalAlignment="Center" Margin="0,0,14,0"
+                     IsVisible="{Binding !IsIdle}" />
+
+            <StackPanel Grid.Column="1" Spacing="2">
+              <!-- The clock belongs to the recording, where the file really grows. The ring stays the
+                                      same size, and a clock there would read as "all of this is saved"; only a clip saves. -->
+              <TextBlock Classes="h1" Text="{Binding ElapsedText}" IsVisible="{Binding IsRecording}" />
+              <TextBlock Classes="h2" Text="Clip buffer active" IsVisible="{Binding IsBuffering}" />
+              <TextBlock Classes="h2" Text="Ready" IsVisible="{Binding IsIdle}" />
+              <TextBlock Classes="caption muted" Text="{Binding DetailText}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Button Classes="accent"
+                      IsVisible="{Binding IsIdle}"
+                      IsEnabled="{Binding ToolsReady}"
+                      Command="{Binding StartRecordingCommand}"
+                      Content="Start recording" />
+
+              <Button Classes="danger"
+                      IsVisible="{Binding IsRecording}"
+                      IsEnabled="{Binding !IsWorking}"
+                      Command="{Binding StopRecordingCommand}"
+                      Content="Stop" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Spacing="3">
+                <TextBlock Text="Clip buffer" Classes="h2" />
+                <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                           Text="Keeps the last minutes. Nothing is saved until you take a clip." />
+              </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <TextBlock Grid.Column="0" Text="Length" Classes="label" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <Slider Grid.Column="1" Minimum="1" Maximum="20" TickFrequency="1" IsSnapToTickEnabled="True"
+                      Value="{Binding BufferMinutes}"
+                      IsEnabled="{Binding IsIdle}" />
+              <TextBlock Grid.Column="2" Classes="mono" VerticalAlignment="Center" Margin="12,0,0,0"
+                         Text="{Binding BufferMinutes, StringFormat='{}{0} min'}" />
+            </Grid>
+
+            <!-- The hotkey sits next to the length, not in the settings: it's the real way to save a
+                                  clip. The button below is for when WinTo is already on screen. -->
+            <Grid ColumnDefinitions="Auto,*">
+              <TextBlock Grid.Column="0" Text="Hotkey" Classes="label" VerticalAlignment="Center" Margin="0,0,12,0" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding Hotkeys}"
+                        SelectedItem="{Binding SelectedHotkey}"
+                        HorizontalAlignment="Stretch"
+                        ToolTip.Tip="Works system-wide while the buffer runs, including in games and with the window minimized.">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:HotkeyChoice">
+                    <TextBlock Text="{Binding Label}" Classes="mono" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </Grid>
+
+            <TextBlock Classes="caption muted" TextWrapping="Wrap" Margin="2,0,0,0"
+                       Text="{Binding HotkeyText}"
+                       IsVisible="{Binding HotkeyText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="accent"
+                      IsVisible="{Binding IsIdle}"
+                      IsEnabled="{Binding ToolsReady}"
+                      Command="{Binding StartBufferCommand}"
+                      Content="Start buffer" />
+
+              <!-- Also after stopping: the segments are still there, and stopping the buffer by
+                                      accident shouldn't lose the last minutes. -->
+              <Button Classes="accent"
+                      IsVisible="{Binding CanSaveClip}"
+                      IsEnabled="{Binding !IsWorking}"
+                      Command="{Binding SaveClipCommand}"
+                      ToolTip.Tip="Joins the ring's segments and cuts out the last minutes."
+                      Content="Save clip" />
+
+              <Button Classes="ghost"
+                      IsVisible="{Binding IsBuffering}"
+                      IsEnabled="{Binding !IsWorking}"
+                      Command="{Binding StopBufferCommand}"
+                      Content="Stop buffer" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="notice" Classes.noticeError="{Binding MessageIsError}"
+                IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+        </Border>
+
+        <!-- A note that is no failure: neutral, below the message. -->
+        <Border Classes="hint" IsVisible="{Binding Hint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <Grid ColumnDefinitions="Auto,*">
+            <PathIcon Data="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm-1 7h2v6h-2v-6Zm0-4h2v2h-2V7Z"
+                      Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,10,0" />
+            <TextBlock Grid.Column="1" Text="{Binding Hint}" TextWrapping="Wrap" />
+          </Grid>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Recent" Classes="h2" />
+            <ItemsControl ItemsSource="{Binding Recent}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="sys:String">
+                  <TextBlock Text="{Binding}" Classes="caption" Margin="0,0,0,4"
+                             TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <!-- ffmpeg's own lines: for when something went wrong, closed otherwise. -->
+        <ToggleButton Classes="ghost" IsVisible="{Binding HasLog}" IsChecked="{Binding ShowLog}"
+                      Content="{Binding LogToggleText}" HorizontalAlignment="Left" Padding="10,6" MinHeight="0" />
+
+        <Border Classes="card">
+          <Border.IsVisible>
+            <MultiBinding Converter="{x:Static BoolConverters.And}">
+              <Binding Path="HasLog" />
+              <Binding Path="ShowLog" />
+            </MultiBinding>
+          </Border.IsVisible>
+          <StackPanel Spacing="8">
+            <ItemsControl ItemsSource="{Binding Log}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="sys:String">
+                  <TextBlock Text="{Binding}" Classes="mono caption muted" TextWrapping="Wrap" Margin="0,0,0,2" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

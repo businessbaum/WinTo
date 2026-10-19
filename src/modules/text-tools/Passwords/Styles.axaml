@@ -1,0 +1,45 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:ui="using:MultiTool.UI"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Module styles, compiled into the module assembly as
+           avares://MultiTool.Modules.TextTools/Passwords/Styles.axaml. Avalonia finds it via
+           AppDomain.GetAssemblies(), which sees every load context. The assembly name must be unique
+           (resolution by simple name, first match), and the shell must never reference it. Included
+           only by PasswordView.axaml, i.e. once the module is loaded. -->
+
+  <!-- A password row. -->
+  <Style Selector="Border.pwRow">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="14,10" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.12" />
+        <ui:SmoothBrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Border.pwRow:pointerover">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <!-- The copy button appears on hover only, like the tab close cross. -->
+  <Style Selector="Border.pwRow Button.pwCopy">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Border.pwRow:pointerover Button.pwCopy">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+
+</Styles>

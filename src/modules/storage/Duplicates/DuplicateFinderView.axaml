@@ -1,0 +1,180 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Storage.Duplicates"
+             xmlns:sys="using:System"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Storage.Duplicates.DuplicateFinderView"
+             x:DataType="local:DuplicateFinderViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Storage/Duplicates/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+    <!-- ========================= Search ========================= -->
+    <Border Grid.Row="0" Classes="card" Margin="24,18,24,0">
+      <StackPanel Spacing="14">
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Folders" Classes="h2" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Classes="ghost"
+                  Command="{Binding AddFolderCommand}"
+                  Content="Add folder" />
+        </Grid>
+
+        <TextBlock Classes="caption muted"
+                   IsVisible="{Binding !HasFolders}"
+                   Text="No folder selected yet. Several folders are possible." />
+
+        <ItemsControl ItemsSource="{Binding Folders}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel ItemSpacing="8" LineSpacing="8" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sys:String">
+              <Border Classes="chip">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding}" Classes="mono" VerticalAlignment="Center" />
+                  <Button Classes="chipClose"
+                          Content="✕"
+                          Command="{Binding $parent[UserControl].((local:DuplicateFinderViewModel)DataContext).RemoveFolderCommand}"
+                          CommandParameter="{Binding}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto" Margin="0,4,0,0">
+          <TextBlock Grid.Column="0" Text="From" Classes="label" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <TextBox Grid.Column="1" Width="80" Classes="mono"
+                   Text="{Binding MinimumSizeKb}"
+                   ToolTip.Tip="Smaller files are skipped. Without a lower limit there are hundreds of groups." />
+          <TextBlock Grid.Column="2" Text="KB" Classes="label" VerticalAlignment="Center" Margin="8,0,20,0" />
+
+          <TextBox Grid.Column="3"
+                   Text="{Binding Extensions}"
+                   PlaceholderText="Extensions, e.g. jpg, mp4 · empty: all"
+                   Classes="mono" />
+
+          <CheckBox Grid.Column="4" Margin="16,0,12,0"
+                    IsChecked="{Binding IncludeHidden}"
+                    Content="Include hidden" />
+
+          <Button Grid.Column="5" Classes="accent"
+                  IsVisible="{Binding !IsScanning}"
+                  Command="{Binding ScanCommand}"
+                  Content="Search" />
+          <Button Grid.Column="5" Classes="danger"
+                  IsVisible="{Binding IsScanning}"
+                  Command="{Binding CancelCommand}"
+                  Content="Cancel" />
+        </Grid>
+
+      </StackPanel>
+    </Border>
+
+    <!-- ========================== Progress ========================== -->
+    <StackPanel Grid.Row="1" Margin="24,12,24,0" Spacing="6" IsVisible="{Binding IsScanning}">
+      <TextBlock Text="{Binding PhaseText}" Classes="caption" />
+      <ProgressBar Height="4" CornerRadius="2"
+                   Minimum="0" Maximum="1"
+                   Value="{Binding ProgressValue}"
+                   IsIndeterminate="{Binding !ProgressIsKnown}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   Background="{DynamicResource BgElevatedBrush}" />
+    </StackPanel>
+
+    <!-- ========================== Result bar ========================== -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="24,16,24,10">
+      <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+        <TextBlock Text="{Binding SummaryText}" Classes="h3" />
+        <TextBlock Text="{Binding Message}" Classes="caption"
+                   Foreground="{DynamicResource AccentBrush}"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                  IsVisible="{Binding HasGroups}">
+        <Button Classes="ghost" Command="{Binding KeepFirstCommand}" Content="Keep first"
+                ToolTip.Tip="Checks all files in each group except the first." />
+        <Button Classes="ghost" Command="{Binding KeepNewestCommand}" Content="Keep newest" />
+        <Button Classes="ghost" Command="{Binding KeepShortestPathCommand}" Content="Keep shortest path"
+                ToolTip.Tip="Keeps the shortest path in each group, usually the original." />
+        <Button Classes="ghost" Command="{Binding SelectNoneCommand}" Content="None" />
+
+        <Border Width="1" Background="{DynamicResource BorderBrush}" Margin="4,2" />
+
+        <TextBlock Text="{Binding SelectionText}" Classes="caption muted" VerticalAlignment="Center" />
+        <Button Classes="danger"
+                IsEnabled="{Binding HasSelection}"
+                Command="{Binding DeleteCommand}"
+                Content="Move to recycle bin" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ============================ Groups ============================ -->
+    <ScrollViewer Grid.Row="3" Padding="24,0,36,24">
+      <ItemsControl ItemsSource="{Binding Groups}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <!-- Virtualized: a run over a photo library easily yields thousands of groups, and
+                                  thousands of realized cards are seconds of layout. -->
+            <VirtualizingStackPanel />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="local:GroupRow">
+            <Border Classes="card" Margin="0,0,0,12" Padding="16,14">
+              <StackPanel Spacing="10">
+
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding HeaderText}" Classes="h3" />
+                  <TextBlock Grid.Column="1" Text="{Binding WastedText}" Classes="caption"
+                             Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" />
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding Files}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:FileRow">
+                      <Border Classes="fileRow">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                          <CheckBox Grid.Column="0" IsChecked="{Binding Selected}"
+                                    VerticalAlignment="Center" Margin="0,0,10,0" />
+
+                          <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Folder}" Classes="caption muted mono"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding Folder}" />
+                          </StackPanel>
+
+                          <TextBlock Grid.Column="2" Text="{Binding ModifiedText}"
+                                     Classes="caption muted" VerticalAlignment="Center" Margin="12,0,8,0" />
+
+                          <Button Grid.Column="3" Classes="ghost rowAction"
+                                  Content="Show"
+                                  VerticalAlignment="Center"
+                                  Command="{Binding $parent[UserControl].((local:DuplicateFinderViewModel)DataContext).RevealCommand}"
+                                  CommandParameter="{Binding}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+
+  </Grid>
+</UserControl>

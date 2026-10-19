@@ -1,0 +1,33 @@
+{
+  "id": "storage",
+  "name": "Storage",
+  "summary": "What fills your drives. Duplicates, cleanup.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Files",
+  "order": 30,
+
+  "icon": "M5 3h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm12 0h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2ZM5 15h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2Z",
+  "accent": "#E0A23B",
+
+  "assembly": "MultiTool.Modules.Storage.dll",
+  "entryType": "MultiTool.Modules.Storage.StorageModule",
+
+  "keywords": ["disk", "space", "storage", "drive", "ssd", "usage", "treemap", "folder", "size",
+               "large", "full", "cleanup", "windirstat", "wiztree", "duplicates", "duplicate",
+               "double", "disk space", "hash", "identical", "temp", "cache", "clean",
+               "recycle bin", "free space"],
+
+  "elevation": "never",
+  "keepsRunning": true,
+
+  "closePrompt": {
+    "hint": "The scan and the duplicate search are not saved anywhere. Closing discards them.",
+    "keep": "Keep open",
+    "close": "Close and discard"
+  },
+
+  "status": {
+    "kind": "none"
+  }
+}

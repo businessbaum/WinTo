@@ -1,0 +1,27 @@
+{
+  "id": "text-tools",
+  "name": "Text tools",
+  "summary": "Passwords, hashes, Base64, JSON.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Tools",
+  "order": 60,
+
+  "icon": "M9.5 3a1 1 0 0 1 .97 1.24L10.28 5h3.44l.31-1.24a1 1 0 1 1 1.94.48L15.78 5H18a1 1 0 1 1 0 2h-2.72l-1 4H17a1 1 0 1 1 0 2h-3.22l-.31 1.24a1 1 0 0 1-1.94-.48L11.72 13H8.28l-.31 1.24a1 1 0 1 1-1.94-.48L6.22 13H4a1 1 0 1 1 0-2h2.72l1-4H6a1 1 0 0 1 0-2h2.22l.31-1.24A1 1 0 0 1 9.5 3Zm.28 4-1 4h3.44l1-4H9.78ZM4 17h16a1 1 0 1 1 0 2H4a1 1 0 1 1 0-2Z",
+  "accent": "#8B7BFF",
+
+  "assembly": "MultiTool.Modules.TextTools.dll",
+  "entryType": "MultiTool.Modules.TextTools.TextToolsModule",
+
+  "keywords": ["text", "hash", "checksum", "md5", "sha", "sha256", "base64", "url", "encode",
+               "decode", "json", "format", "timestamp", "unix", "uuid", "guid", "count",
+               "developer", "tool", "password", "passphrase", "generator", "random", "entropy",
+               "security"],
+
+  "elevation": "never",
+  "keepsRunning": false,
+
+  "status": {
+    "kind": "none"
+  }
+}

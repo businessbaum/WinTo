@@ -1,0 +1,422 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Photos"
+             xmlns:shot="using:MultiTool.Modules.Capture.Screenshot"
+             x:Class="MultiTool.Modules.Photos.PhotosView"
+             x:DataType="local:PhotosViewModel"
+             Focusable="True">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Photos/Styles.axaml" />
+  </UserControl.Styles>
+
+  <!-- A ribbon like Word or PowerPoint: tabs at the top, the tools of the open tab below them, always
+       visible. Home views; every other tab edits a quick preview of the picture. -->
+  <Grid RowDefinitions="Auto,Auto,*" ColumnDefinitions="*,Auto">
+
+    <!-- ========================= Title ========================= -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto" Margin="16,8,16,6">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <Button Classes="ghost icon" Command="{Binding OpenFileCommand}" ToolTip.Tip="Open a picture (Ctrl+O)">
+          <PathIcon Data="{DynamicResource PhotoOpen}" Classes="small" />
+        </Button>
+        <Button Classes="ghost icon" Command="{Binding PreviousCommand}" ToolTip.Tip="Previous (←)" IsEnabled="{Binding HasPhoto}">
+          <PathIcon Data="{DynamicResource PhotoPrevious}" Classes="small" />
+        </Button>
+        <Button Classes="ghost icon" Command="{Binding NextCommand}" ToolTip.Tip="Next (→)" IsEnabled="{Binding HasPhoto}">
+          <PathIcon Data="{DynamicResource PhotoNext}" Classes="small" />
+        </Button>
+        <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+          <TextBlock Text="{Binding Title}" FontWeight="600" TextTrimming="CharacterEllipsis" MaxWidth="460" />
+          <TextBlock Text="{Binding Counter}" Classes="caption muted"
+                     IsVisible="{Binding Counter, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasPhoto}">
+        <Button Classes="accent" Content="Save a copy" Command="{Binding SaveCopyCommand}"
+                ToolTip.Tip="Ctrl+S · next to the original as &quot;(edited)&quot;. Saved pictures carry no camera data or location." />
+        <Button Classes="ghost icon" ToolTip.Tip="More">
+          <PathIcon Data="{DynamicResource IconDots}" Classes="small" />
+          <Button.Flyout>
+            <MenuFlyout Placement="BottomEdgeAlignedRight">
+              <MenuItem Header="Save as…" Command="{Binding SaveAsCommand}" />
+              <MenuItem Header="Replace the original…" Command="{Binding ReplaceOriginalCommand}" IsEnabled="{Binding HasEdits}" />
+              <Separator />
+              <MenuItem Header="Show in Explorer" Command="{Binding RevealCommand}" />
+              <MenuItem Header="Delete" InputGesture="Delete" Command="{Binding DeleteCommand}" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- ========================= Ribbon ========================= -->
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Classes="ribbon" Margin="16,0,16,10" IsEnabled="{Binding HasPhoto}">
+      <StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="2" Margin="8,4,8,0">
+          <Button Classes="ribbonTab" Classes.active="{Binding IsHome}" Command="{Binding ShowSectionCommand}" CommandParameter="0" Content="Home" />
+          <Button Classes="ribbonTab" Classes.active="{Binding IsAdjust}" Command="{Binding ShowSectionCommand}" CommandParameter="1" Content="Adjust" />
+          <Button Classes="ribbonTab" Classes.active="{Binding IsCrop}" Command="{Binding ShowSectionCommand}" CommandParameter="2" Content="Crop &amp; rotate" />
+          <Button Classes="ribbonTab" Classes.active="{Binding IsMarkup}" Command="{Binding ShowSectionCommand}" CommandParameter="3" Content="Markup" />
+          <Button Classes="ribbonTab" Classes.active="{Binding IsSize}" Command="{Binding ShowSectionCommand}" CommandParameter="4" Content="Size" />
+        </StackPanel>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+          <Panel Classes="ribbonBody">
+
+            <!-- Home: view, turn, share, file. -->
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding IsHome}">
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding ZoomOutCommand}" ToolTip.Tip="−">
+                    <StackPanel><PathIcon Data="{DynamicResource IconGlyphMinus}" Width="12" Height="12" /><TextBlock Text="Smaller" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding ZoomActualCommand}" ToolTip.Tip="1 · double-click the picture to switch">
+                    <StackPanel><TextBlock Text="{Binding ZoomText}" Classes="zoomValue" /><TextBlock Text="100 %" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding ZoomInCommand}" ToolTip.Tip="+">
+                    <StackPanel><PathIcon Data="{DynamicResource IconGlyphPlus}" Width="12" Height="12" /><TextBlock Text="Larger" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding ZoomFitCommand}" ToolTip.Tip="0">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoFit}" /><TextBlock Text="Fit" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Zoom" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding RotateLeftCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoRotateLeft}" /><TextBlock Text="Left" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding RotateRightCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoRotateRight}" /><TextBlock Text="Right" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Rotate" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding CopyCommand}" ToolTip.Tip="Ctrl+C">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoCopy}" /><TextBlock Text="Copy" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding SetWallpaperCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoWallpaper}" /><TextBlock Text="Wallpaper" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding RevealCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoOpen}" /><TextBlock Text="In folder" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding DeleteCommand}" ToolTip.Tip="To the recycle bin (Delete)">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoDelete}" /><TextBlock Text="Delete" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Picture" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <ToggleButton Classes="ribbonButton" IsChecked="{Binding ShowInfo}" ToolTip.Tip="I">
+                    <StackPanel><PathIcon Data="{DynamicResource IconInfo}" /><TextBlock Text="Info" /></StackPanel>
+                  </ToggleButton>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Details" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup last"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip.Tip="Ctrl+Z">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoUndo}" /><TextBlock Text="Undo" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding ResetAllCommand}" IsEnabled="{Binding HasEdits}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoReset}" /><TextBlock Text="Start over" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Edits" Classes="groupLabel" />
+              </Grid></Border>
+            </StackPanel>
+
+            <!-- Adjust: filters and four sliders. -->
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding IsAdjust}">
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <ItemsControl ItemsSource="{Binding Filters}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="2" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:FilterChoice">
+                      <Button Classes="filter" Classes.active="{Binding IsActive}"
+                              Command="{Binding $parent[ItemsControl].((local:PhotosViewModel)DataContext).ChooseFilterCommand}"
+                              CommandParameter="{Binding}">
+                        <StackPanel Spacing="2">
+                          <Border Classes="filterThumb">
+                            <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" />
+                          </Border>
+                          <TextBlock Text="{Binding Name}" FontSize="11" HorizontalAlignment="Center" />
+                        </StackPanel>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Grid.Row="1" Text="Filter" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <Grid ColumnDefinitions="78,150,36" RowDefinitions="36,36" VerticalAlignment="Center">
+                  <TextBlock Text="Brightness" Classes="sliderLabel" />
+                  <Slider Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding Brightness}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Brightness}" Classes="sliderValue" />
+                  <TextBlock Grid.Row="1" Text="Contrast" Classes="sliderLabel" />
+                  <Slider Grid.Row="1" Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding Contrast}" />
+                  <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Contrast}" Classes="sliderValue" />
+                </Grid>
+                <TextBlock Grid.Row="1" Text="Light" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <Grid ColumnDefinitions="78,150,36" RowDefinitions="36,36" VerticalAlignment="Center">
+                  <TextBlock Text="Saturation" Classes="sliderLabel" />
+                  <Slider Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding Saturation}" />
+                  <TextBlock Grid.Column="2" Text="{Binding Saturation}" Classes="sliderValue" />
+                  <TextBlock Grid.Row="1" Text="Warmth" Classes="sliderLabel" />
+                  <Slider Grid.Row="1" Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding Warmth}" />
+                  <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Warmth}" Classes="sliderValue" />
+                </Grid>
+                <TextBlock Grid.Row="1" Text="Color" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup last"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding ResetLookCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoReset}" /><TextBlock Text="Reset" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip.Tip="Ctrl+Z">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoUndo}" /><TextBlock Text="Undo" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Edits" Classes="groupLabel" />
+              </Grid></Border>
+            </StackPanel>
+
+            <!-- Crop and rotate. -->
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding IsCrop}">
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <ItemsControl ItemsSource="{Binding Aspects}" MaxWidth="330" VerticalAlignment="Center">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel ItemSpacing="4" LineSpacing="4" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:AspectChoice">
+                      <Button Classes="chip" Classes.active="{Binding IsActive}" Content="{Binding Name}"
+                              Command="{Binding $parent[ItemsControl].((local:PhotosViewModel)DataContext).ChooseAspectCommand}"
+                              CommandParameter="{Binding}" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Grid.Row="1" Text="Aspect ratio" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal">
+                  <Button Classes="ribbonButton" Command="{Binding RotateLeftCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoRotateLeft}" /><TextBlock Text="Left" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding RotateRightCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoRotateRight}" /><TextBlock Text="Right" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding FlipHorizontalCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoFlipH}" /><TextBlock Text="Mirror" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding FlipVerticalCommand}">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoFlipV}" /><TextBlock Text="Flip" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Rotate and flip" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup last"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <Button Classes="ribbonButton accentRibbon" Command="{Binding ApplyCropCommand}" ToolTip.Tip="Drag the frame or its corners on the picture first">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoCrop}" /><TextBlock Text="Crop" /></StackPanel>
+                  </Button>
+                  <Button Classes="ribbonButton" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip.Tip="Ctrl+Z">
+                    <StackPanel><PathIcon Data="{DynamicResource PhotoUndo}" /><TextBlock Text="Undo" /></StackPanel>
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Frame on the picture" Classes="groupLabel" />
+              </Grid></Border>
+            </StackPanel>
+
+            <!-- Markup: the Capture tool's drawing tools. -->
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding IsMarkup}">
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsPen, FallbackValue=False}" ToolTip.Tip="Pen"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Pen">
+                    <PathIcon Data="{DynamicResource MarkPen}" />
+                  </Button>
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsMarker, FallbackValue=False}" ToolTip.Tip="Highlighter"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Marker">
+                    <PathIcon Data="{DynamicResource MarkMarker}" />
+                  </Button>
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsArrow, FallbackValue=False}" ToolTip.Tip="Arrow"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Arrow">
+                    <PathIcon Data="{DynamicResource MarkArrow}" />
+                  </Button>
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsBox, FallbackValue=False}" ToolTip.Tip="Box"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Box">
+                    <PathIcon Data="{DynamicResource MarkBox}" />
+                  </Button>
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsText, FallbackValue=False}" ToolTip.Tip="Text · click where it goes, Enter finishes"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Text">
+                    <PathIcon Data="{DynamicResource MarkText}" />
+                  </Button>
+                  <Button Classes="tool" Classes.active="{Binding Markup.IsPixelate, FallbackValue=False}" ToolTip.Tip="Pixelate · hides faces, plates, names"
+                          Command="{Binding Markup.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Pixelate">
+                    <PathIcon Data="{DynamicResource MarkPixelate}" />
+                  </Button>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Tools" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <ItemsControl ItemsSource="{Binding Markup.Swatches, FallbackValue={x:Null}}" VerticalAlignment="Center">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="2" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="shot:EditorSwatch">
+                      <Button Classes="swatch" Classes.active="{Binding IsActive}" ToolTip.Tip="{Binding Name}"
+                              Command="{Binding $parent[ItemsControl].((local:PhotosViewModel)DataContext).Markup.SelectColorCommand, FallbackValue={x:Null}}"
+                              CommandParameter="{Binding}">
+                        <Border Background="{Binding Brush}" Width="16" Height="16" CornerRadius="8"
+                                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1" />
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Grid.Row="1" Text="Color" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup last"><Grid RowDefinitions="*,Auto">
+                <TextBlock Text="Drawings are kept when another tab opens or the picture is saved. Ctrl+Z undoes the last one."
+                           Classes="caption" TextWrapping="Wrap" MaxWidth="260" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="1" Text="Note" Classes="groupLabel" />
+              </Grid></Border>
+            </StackPanel>
+
+            <!-- Size and quality, applied when saving. -->
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding IsSize}">
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <StackPanel Spacing="4" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Value="{Binding WidthBox}" PlaceholderText="{Binding WidthPlaceholder}"
+                                   Minimum="1" Maximum="65000" FormatString="0" Increment="10" Width="116"
+                                   ToolTip.Tip="Width in pixels. Empty keeps the size." />
+                    <TextBlock Text="×" VerticalAlignment="Center" />
+                    <NumericUpDown Value="{Binding HeightBox}" PlaceholderText="{Binding HeightPlaceholder}"
+                                   Minimum="1" Maximum="65000" FormatString="0" Increment="10" Width="116"
+                                   ToolTip.Tip="Height in pixels. Empty keeps the size." />
+                  </StackPanel>
+                  <CheckBox Content="Keep proportions" IsChecked="{Binding KeepRatio}" />
+                </StackPanel>
+                <TextBlock Grid.Row="1" Text="Pixels" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <WrapPanel ItemSpacing="4" LineSpacing="4" MaxWidth="300" VerticalAlignment="Center">
+                  <Button Classes="chip" Content="75 %" Command="{Binding ResizePresetCommand}" CommandParameter="75" />
+                  <Button Classes="chip" Content="50 %" Command="{Binding ResizePresetCommand}" CommandParameter="50" />
+                  <Button Classes="chip" Content="25 %" Command="{Binding ResizePresetCommand}" CommandParameter="25" />
+                  <Button Classes="chip" Content="3840 wide" Command="{Binding ResizePresetCommand}" CommandParameter="w3840" />
+                  <Button Classes="chip" Content="1920 wide" Command="{Binding ResizePresetCommand}" CommandParameter="w1920" />
+                  <Button Classes="chip" Content="1280 wide" Command="{Binding ResizePresetCommand}" CommandParameter="w1280" />
+                </WrapPanel>
+                <TextBlock Grid.Row="1" Text="Presets" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup"><Grid RowDefinitions="*,Auto">
+                <Grid ColumnDefinitions="150,36" RowDefinitions="Auto,Auto" VerticalAlignment="Center">
+                  <Slider Minimum="40" Maximum="100" Value="{Binding JpegQuality}" />
+                  <TextBlock Grid.Column="1" Text="{Binding JpegQuality}" Classes="sliderValue" />
+                  <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="92 looks like the original at a third of the size."
+                             Classes="caption" TextWrapping="Wrap" MaxWidth="186" />
+                </Grid>
+                <TextBlock Grid.Row="1" Text="JPEG and WebP quality" Classes="groupLabel" />
+              </Grid></Border>
+
+              <Border Classes="ribbonGroup last"><Grid RowDefinitions="*,Auto">
+                <TextBlock Text="{Binding ResultSize}" FontWeight="600" VerticalAlignment="Center" />
+                <TextBlock Grid.Row="1" Text="Saved size" Classes="groupLabel" />
+              </Grid></Border>
+            </StackPanel>
+          </Panel>
+        </ScrollViewer>
+      </StackPanel>
+    </Border>
+
+    <!-- ========================= Picture ========================= -->
+    <Border Grid.Row="2" Grid.Column="0" Classes="stage" Margin="16,0,16,16">
+      <Panel>
+        <local:PhotoCanvas Source="{Binding Display}" Zoom="{Binding Zoom}" IsVisible="{Binding ShowCanvas}"
+                           Cropping="{Binding Cropping}" CropAspect="{Binding CropAspect}" CropRect="{Binding CropRect}" />
+        <shot:EditorSurface Editor="{Binding Markup}" IsVisible="{Binding ShowMarkup}" />
+
+        <StackPanel IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+          <TextBlock Text="No picture open." Classes="h3" HorizontalAlignment="Center" />
+          <TextBlock Text="Open one, drop one here, or right-click a picture in Explorer." Classes="caption muted"
+                     HorizontalAlignment="Center" />
+          <Button Classes="accent" Content="Open a picture" Command="{Binding OpenFileCommand}" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Text="Loading…" Classes="caption" IsVisible="{Binding IsLoading}"
+                   VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+        <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="460"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   IsVisible="{Binding Problem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </Panel>
+    </Border>
+
+    <!-- ========================= Info ========================= -->
+    <Border Grid.Row="2" Grid.Column="1" Classes="sidePanel" IsVisible="{Binding ShowInfo}">
+      <StackPanel Spacing="14">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Info" Classes="h3" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Classes="ghost icon" Command="{Binding ToggleInfoCommand}" ToolTip.Tip="Close (I)">
+            <PathIcon Data="{DynamicResource IconClose}" Width="10" Height="10" />
+          </Button>
+        </Grid>
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding InfoName}" FontWeight="600" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding InfoFolder}" Classes="caption muted" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Spacing="2">
+          <TextBlock Text="Picture" Classes="label" />
+          <TextBlock Text="{Binding InfoSize}" />
+          <TextBlock Text="{Binding InfoFile}" Classes="caption" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Spacing="2">
+          <TextBlock Text="Dates" Classes="label" />
+          <TextBlock Text="{Binding InfoDates}" TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Spacing="2" IsVisible="{Binding InfoCamera, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <TextBlock Text="Camera" Classes="label" />
+          <TextBlock Text="{Binding InfoCamera}" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding InfoExposure}" Classes="caption" TextWrapping="Wrap"
+                     IsVisible="{Binding InfoExposure, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+        <Border Classes="locationNote" IsVisible="{Binding InfoHasLocation}">
+          <TextBlock Text="Contains a location. Saved copies don't carry it." TextWrapping="Wrap" Classes="caption" />
+        </Border>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

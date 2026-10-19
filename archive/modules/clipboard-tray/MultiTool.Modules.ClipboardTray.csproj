@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- No dependencies of its own: clipboard, image decoding and file access all come from
+              Avalonia in the default context. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.ClipboardTray</RootNamespace>
+    <AssemblyName>MultiTool.Modules.ClipboardTray</AssemblyName>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,362 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:ui="using:MultiTool.UI"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Shell-only styles: tabs, tiles, header and footer. General styles live in
+              MultiTool.UI/Theme/Controls.axaml. -->
+
+  <!-- ================= Tabs in the header ================= -->
+  <!-- Like browser tabs: rounded, the active one lifted off the strip with a lighter surface and a
+              border; the rest only show a hover. Pages size to their title, tools get their width from
+              TabStripPanel. Class names no module uses (navTab, not nav or tab): shell styles reach into
+              module views. -->
+
+  <Style Selector="Button.navTab">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <Style Selector="Button.navTab.tool">
+    <Setter Property="Padding" Value="11,0,5,0" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+
+  <!-- Open tools read as tabs even when inactive: a faint surface, unlike the page tabs. -->
+  <Style Selector="Button.navTab.tool /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+  </Style>
+
+  <Style Selector="Button.navTab:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Button.navTab.active /template/ ContentPresenter#PART_ContentPresenter, Button.navTab.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="PathIcon.navIcon">
+    <Setter Property="Width" Value="15" />
+    <Setter Property="Height" Value="15" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.navTab:pointerover PathIcon.navIcon">
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.navTab.active PathIcon.navIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Between the pages and the open tools. -->
+  <Style Selector="Border.tabDivider">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="Margin" Value="8,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <!-- A narrow window keeps the page icons and drops their titles. -->
+  <Style Selector="Grid.compact TextBlock.pageTitle">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+  <Style Selector="Grid.compact Button.navTab.page">
+    <Setter Property="Padding" Value="10,0" />
+  </Style>
+
+  <!-- The close cross of a tool appears on hover and on the active tab, as in a browser. -->
+  <Style Selector="Button.tabClose">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusSm}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button.navTab:pointerover Button.tabClose">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.navTab.active Button.tabClose">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.tabClose:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+
+  <!-- ================= Tiles ================= -->
+
+  <!-- Width comes from the AdaptiveGrid; the height is fixed so every row lines up. -->
+  <Style Selector="Button.tile">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="Padding" Value="14,12" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="84" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="TextBlock.tileName">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="FontWeight" Value="600" />
+  </Style>
+
+  <!-- The tile does not move on hover. A 1 px border shifted by 2 px vanishes between device
+           pixels at some scalings. The border switches to the accent color instead: clearer than
+           any movement and exactly one pixel at every scaling. -->
+  <Style Selector="Button.tile /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Transitions">
+      <Transitions>
+        <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.13" />
+        <ui:SmoothBrushTransition Property="BorderBrush" Duration="0:0:0.13" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button.tile:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="Button.tile:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+  </Style>
+
+  <!-- Extra tile buttons (pin, open as window): visible on hover, like the close cross. -->
+  <Style Selector="Button.tileAction">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusSm}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button.tile:pointerover Button.tileAction">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.tileAction.pinned">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.tileAction:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+
+  <!-- Icon box at the top left of the tile -->
+  <Style Selector="Border.tileIcon">
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="44" />
+    <Setter Property="CornerRadius" Value="12" />
+  </Style>
+
+  <!-- ================= Status dot ================= -->
+
+  <Style Selector="Ellipse.dot">
+    <Setter Property="Width" Value="7" />
+    <Setter Property="Height" Value="7" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Fill" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+  <Style Selector="Ellipse.dot.good">
+    <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
+  </Style>
+  <Style Selector="Ellipse.dot.warn">
+    <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
+  </Style>
+  <Style Selector="Ellipse.dot.bad">
+    <Setter Property="Fill" Value="{DynamicResource DangerBrush}" />
+  </Style>
+  <Style Selector="Ellipse.dot.busy">
+    <Setter Property="Fill" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- ================= Window buttons ================= -->
+
+  <!-- Three colored dots instead of the Windows buttons (possible because of
+           WindowDecorations="None"; dragging is done by the header, resizing by WindowResizeGrips).
+           The glyph appears when hovering the group, not a single dot, so all three meanings show
+           at once while aiming. -->
+  <Style Selector="Button.traffic">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusPill}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <!-- The color goes on the template border: Fluent sets the button background per state and
+              would override it. -->
+  <Style Selector="Button.traffic /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusPill}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button.traffic.min /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E0A63C" />
+  </Style>
+  <Style Selector="Button.traffic.min:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#F5BC52" />
+  </Style>
+
+  <Style Selector="Button.traffic.max /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#2FC095" />
+  </Style>
+  <Style Selector="Button.traffic.max:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#3FD9AB" />
+  </Style>
+
+  <Style Selector="Button.traffic.close /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E8697C" />
+  </Style>
+  <Style Selector="Button.traffic.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#FF8093" />
+  </Style>
+
+  <!-- The glyph: invisible until the pointer is over the group. -->
+  <Style Selector="Button.traffic PathIcon">
+    <Setter Property="Width" Value="7" />
+    <Setter Property="Height" Value="7" />
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Foreground" Value="#3A2408" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="StackPanel.trafficGroup:pointerover Button.traffic PathIcon">
+    <Setter Property="Opacity" Value="0.75" />
+  </Style>
+
+  <!-- Dots fade when the window is not in front, showing at a glance which window gets input. -->
+  <Style Selector="StackPanel.trafficGroup">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Window[IsActive=False] StackPanel.trafficGroup">
+    <Setter Property="Opacity" Value="0.4" />
+  </Style>
+
+  <!-- ================= Header and footer ================= -->
+
+  <Style Selector="Border.chrome">
+    <Setter Property="Background" Value="{DynamicResource BgBaseBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <!-- The footer reports what is running. Slightly lighter than the page with a stronger
+              divider, so it reads as its own line rather than the content's bottom edge. -->
+  <Style Selector="Border.footer">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="Padding" Value="16,7" />
+  </Style>
+
+  <!-- ================= The spinning border =================
+
+           A module working in the background shows it on the home page, even with its view closed.
+           An animation can't target a brush property, only a control's, so a rectangle carrying the
+           gradient is rotated: large enough to cover the tile at any angle, clipped to its shape and
+           masked down to two pixels. -->
+  <Style Selector="Border.busyRing">
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+  </Style>
+
+  <Style Selector="Border.busySweep">
+    <Setter Property="Width" Value="460" />
+    <Setter Property="Height" Value="460" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+    <!-- A traveling arc, not an evenly glowing frame; in the palette so it follows the accent. -->
+    <Setter Property="Background" Value="{DynamicResource BusySweepBrush}" />
+    <Style.Animations>
+      <Animation Duration="0:0:1.8" IterationCount="Infinite">
+        <KeyFrame Cue="0%">
+          <Setter Property="RotateTransform.Angle" Value="0" />
+        </KeyFrame>
+        <KeyFrame Cue="100%">
+          <Setter Property="RotateTransform.Angle" Value="360" />
+        </KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+
+  <!-- The mask covers everything but the border. It must match the tile color underneath,
+              including on hover, hence three rules. -->
+  <Style Selector="Border.busyMask">
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+  </Style>
+
+  <Style Selector="Button.tile:pointerover Border.busyMask">
+    <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+  </Style>
+
+  <Style Selector="Button.tile:pressed Border.busyMask">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+
+  <!-- The keep-awake button while active. Color instead of a second icon. -->
+  <Style Selector="Button.awake PathIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="Button.awake /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+  </Style>
+
+</Styles>

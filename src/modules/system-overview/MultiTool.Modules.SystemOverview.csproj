@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.SystemOverview</RootNamespace>
+    <AssemblyName>MultiTool.Modules.SystemOverview</AssemblyName>
+
+    <!-- For GlobalMemoryStatusEx and GetSystemTimes; LibraryImport needs this switch. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only for audio devices: binding Core Audio by hand would be about 150 lines of COM interop
+                  with PROPVARIANT, and a mistake there is a crash. NAudio stays in the module folder and
+                  never crosses to the host, so each module may bring its own version. -->
+    <PackageReference Include="NAudio" />
+  </ItemGroup>
+
+</Project>

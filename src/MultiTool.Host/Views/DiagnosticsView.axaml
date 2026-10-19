@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MultiTool.Host.ViewModels"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Host.Views.DiagnosticsView"
+             x:DataType="vm:DiagnosticsViewModel">
+
+  <ScrollViewer Padding="28,20,40,28">
+    <StackPanel Spacing="18" MaxWidth="880" HorizontalAlignment="Left">
+
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="3">
+          <TextBlock Text="Diagnostics" Classes="h1" />
+          <TextBlock Classes="caption"
+                     Text="What is loaded right now." />
+        </StackPanel>
+        <Button Grid.Column="1"
+                Classes="ghost"
+                Content="Refresh"
+                Command="{Binding RefreshCommand}"
+                VerticalAlignment="Center" />
+      </Grid>
+
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Text="{Binding Summary}" Classes="label" />
+          <TextBlock Text="{Binding MemoryText}" Classes="caption muted" />
+          <TextBlock Text="{Binding StartupText}" Classes="caption muted" />
+        </StackPanel>
+      </Border>
+
+      <!-- ================= Module ================= -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Modules" Classes="h2" />
+
+          <TextBlock Classes="caption muted"
+                     Text="No module opened since start. No module code is loaded."
+                     IsVisible="{Binding NoModuleTouched}" />
+
+          <ItemsControl ItemsSource="{Binding Modules}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ModuleRow">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,12">
+                  <Ellipse Grid.Column="0"
+                           Classes="dot"
+                           Classes.good="{Binding IsLive}"
+                           Margin="0,6,10,0"
+                           VerticalAlignment="Top" />
+                  <StackPanel Grid.Column="1" Spacing="1">
+                    <TextBlock Text="{Binding Name}" Classes="label" />
+                    <TextBlock Text="{Binding Detail}" Classes="mono muted" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding State}"
+                             Classes="caption"
+                             VerticalAlignment="Center"
+                             Margin="12,0,0,0" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- ================= Load contexts ================= -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <TextBlock Text="Load contexts" Classes="h2" />
+
+          <ItemsControl ItemsSource="{Binding Contexts}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ContextRow">
+                <Expander Margin="0,0,0,6" Padding="0">
+                  <Expander.Header>
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Name}" Classes="label" />
+                      <TextBlock Text="{Binding Subtitle}" Classes="caption muted" />
+                    </StackPanel>
+                  </Expander.Header>
+                  <TextBlock Text="{Binding Assemblies}" Classes="mono muted" Margin="8,4,0,4" />
+                </Expander>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

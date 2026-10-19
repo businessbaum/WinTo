@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Apps"
+             xmlns:pkg="using:MultiTool.Modules.Apps.Packages"
+             xmlns:un="using:MultiTool.Modules.Apps.Uninstaller"
+             x:Class="MultiTool.Modules.Apps.AppsView"
+             x:DataType="local:AppsViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Border Grid.Row="0" Classes="sections" Margin="24,16,24,0">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="section" Classes.active="{Binding IsPackages}" Command="{Binding ShowPackagesCommand}" Content="Install &amp; update" />
+        <Button Classes="section" Classes.active="{Binding IsUninstall}" Command="{Binding ShowUninstallCommand}" Content="Uninstall" />
+      </StackPanel>
+    </Border>
+
+    <!-- Both stay in the tree: a running installation survives switching. -->
+    <pkg:PackagesView Grid.Row="1" DataContext="{Binding Packages}" IsVisible="{Binding $parent[UserControl].((local:AppsViewModel)DataContext).IsPackages}" />
+    <un:UninstallerView Grid.Row="1" DataContext="{Binding Uninstaller}" IsVisible="{Binding $parent[UserControl].((local:AppsViewModel)DataContext).IsUninstall}" />
+  </Grid>
+</UserControl>

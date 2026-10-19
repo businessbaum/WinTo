@@ -1,0 +1,26 @@
+{
+  "id": "soundboard",
+  "name": "Soundboard",
+  "summary": "Play sounds as your microphone.",
+  "version": "1.0.0",
+  "minHostVersion": "0.4.0",
+  "category": "Audio",
+  "order": 80,
+  "icon": "M4 10h2v4H4v-4Zm4-4h2v12H8V6Zm4-3h2v18h-2V3Zm4 5h2v8h-2V8Zm4 3h2v2h-2v-2Z",
+  "accent": "#35D6A4",
+  "assembly": "MultiTool.Modules.Soundboard.dll",
+  "entryType": "MultiTool.Modules.Soundboard.SoundboardModule",
+  "keywords": ["sound", "soundboard", "audio", "microphone", "discord", "teamspeak", "hotkey",
+               "cable", "vb-cable"],
+  "elevation": "onDemand",
+  "keepsRunning": true,
+  "closePrompt": {
+    "hint": "Hotkeys and audio routing only work while the soundboard is loaded.",
+    "keep": "Keep open",
+    "close": "Quit completely"
+  },
+  "status": {
+    "kind": "cached",
+    "whenFalse": "not set up yet"
+  }
+}

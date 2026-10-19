@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- No dependencies: everything here is in the .NET class library. That is the point of the
+              module: no website, no service, no upload. Since 0.13.0 it includes the former password
+              generator (Passwords/). -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.TextTools</RootNamespace>
+    <AssemblyName>MultiTool.Modules.TextTools</AssemblyName>
+
+    <!-- For LibraryImport: the history-blocking clipboard goes through user32 (see SecretClipboard). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

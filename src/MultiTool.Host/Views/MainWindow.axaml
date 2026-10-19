@@ -1,0 +1,177 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:MultiTool.Host.ViewModels"
+        xmlns:ui="using:MultiTool.UI"
+        xmlns:views="using:MultiTool.Host.Views"
+        mc:Ignorable="d"
+        x:Class="MultiTool.Host.Views.MainWindow"
+        x:DataType="vm:ShellViewModel"
+        Title="WinTo"
+        Icon="avares://WinTo/Assets/app.ico"
+        Width="1180" Height="760"
+        MinWidth="720" MinHeight="480"
+        Background="{DynamicResource BgBaseBrush}"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="None">
+
+  <!-- WindowDecorations="None": Windows draws nothing around this window.
+
+           ExtendClientAreaToDecorationsHint turned the top pixels into non-client area and the
+           header stopped receiving clicks. BorderOnly made Windows draw a visible frame over the
+           header, which resized instead of dragging. So the app does it all itself:
+
+             drag and double-click   PointerPressed on the header
+             window buttons          the three colored dots on the right
+             resizing                WindowResizeGrips, invisible zones at the edges
+
+           Lost: the Windows 11 snap layouts flyout on the maximize button. Aero Snap by dragging
+           to a screen edge still works. -->
+  <Grid x:Name="Root" RowDefinitions="48,*,Auto">
+
+    <!-- ================= Header with tabs ================= -->
+    <!-- The header doubles as the title bar: drag and double-click on any free spot, including the
+                  space right of the last tab. Like a browser: the four pages as fixed tabs on the left,
+                  then one tab per open tool, all the same width and narrower as more open
+                  (TabStripPanel). Middle-click closes a tool, Ctrl+W closes the current one,
+                  Ctrl+Tab moves on. -->
+    <Border Grid.Row="0" Classes="chrome" PointerPressed="OnChromePressed">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="14,0,12,0">
+
+        <ui:LogoMark Grid.Column="0" Width="22" Height="22" Margin="0,0,14,0" VerticalAlignment="Center"
+                     IsHitTestVisible="False" />
+
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Pages}" VerticalAlignment="Center">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:NavItem">
+              <Button Classes="navTab page"
+                      Classes.active="{Binding IsSelected}"
+                      Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).NavigateToCommand}"
+                      CommandParameter="{Binding}"
+                      ToolTip.Tip="{Binding Title}">
+                <StackPanel Orientation="Horizontal" Spacing="9">
+                  <PathIcon Data="{Binding Icon}" Classes="navIcon" />
+                  <TextBlock Text="{Binding Title}" Classes="pageTitle" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border Grid.Column="2" Classes="tabDivider" IsVisible="{Binding HasOpenTabs}" />
+
+        <ItemsControl Grid.Column="3" x:Name="ToolTabs" ItemsSource="{Binding OpenTabs}"
+                      HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,32,0" ClipToBounds="True">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <views:TabStripPanel Spacing="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ShellTab">
+              <Button Classes="navTab tool"
+                      Classes.active="{Binding IsSelected}"
+                      Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SelectTabCommand}"
+                      CommandParameter="{Binding}"
+                      ToolTip.Tip="{Binding Title}">
+                <Button.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="Open in its own window" IsVisible="{Binding CanPopOut}"
+                              Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).PopOutCommand}"
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="Close"
+                              Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).CloseTabCommand}"
+                              CommandParameter="{Binding}" />
+                  </ContextMenu>
+                </Button.ContextMenu>
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                  <PathIcon Data="{Binding Icon}" Classes="navIcon" />
+                  <TextBlock Grid.Column="1" Text="{Binding Title}" VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis" Margin="9,0,4,0" />
+                  <Ellipse Grid.Column="2" Classes="dot busy" Width="6" Height="6" Margin="0,0,4,0"
+                           IsVisible="{Binding IsBusy}" />
+                  <Button Grid.Column="3" Classes="tabClose"
+                          IsVisible="{Binding CanClose}"
+                          Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).CloseTabCommand}"
+                          CommandParameter="{Binding}"
+                          ToolTip.Tip="Close (Ctrl+W)">
+                    <PathIcon Data="{DynamicResource IconClose}" Width="9" Height="9" Classes="muted" />
+                  </Button>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Window buttons in Windows order: minimize, maximize, close. -->
+        <StackPanel Grid.Column="4"
+                    Classes="trafficGroup"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center"
+                    Margin="14,0,4,0">
+
+          <Button Classes="traffic min" Click="OnMinimizeClicked" ToolTip.Tip="Minimize">
+            <PathIcon Data="{DynamicResource IconGlyphMinus}" />
+          </Button>
+
+          <Button Classes="traffic max" Click="OnMaximizeClicked" ToolTip.Tip="Maximize">
+            <PathIcon Data="{DynamicResource IconGlyphPlus}" />
+          </Button>
+
+          <Button Classes="traffic close" Click="OnCloseClicked" ToolTip.Tip="Close">
+            <PathIcon Data="{DynamicResource IconGlyphCross}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ================= Content ================= -->
+    <!-- A plain ContentControl on purpose: a TransitioningContentControl would reparent a
+                  module's view on every switch, and a view with a running recording should only
+                  ever have one parent. -->
+    <ContentControl Grid.Row="1"
+                    Content="{Binding SelectedTab.Content}" />
+
+    <!-- ================= Footer ================= -->
+    <!-- Left: what is running. Right: a notice that goes away by itself. Separate so they
+                  don't overwrite each other (see ShellViewModel.NoticeText). -->
+    <Border Grid.Row="2" Classes="footer" IsVisible="{Binding HasFooter}">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="9"
+                    IsVisible="{Binding HasActivity}">
+          <Ellipse Classes="dot busy" />
+          <TextBlock Text="{Binding ActivityText}" Classes="caption" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Button Grid.Column="2" Classes="ghost notice"
+                IsVisible="{Binding HasNotice}"
+                Command="{Binding DismissNoticeCommand}"
+                ToolTip.Tip="Dismiss">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Ellipse Classes="dot"
+                     Classes.good="{Binding NoticeIsGood}"
+                     Classes.warn="{Binding NoticeIsWarn}"
+                     Classes.bad="{Binding NoticeIsBad}" />
+            <TextBlock Text="{Binding NoticeText}" Classes="caption"
+                       TextTrimming="CharacterEllipsis" MaxWidth="640"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
+      </Grid>
+    </Border>
+
+    <!-- ================= Introduction ================= -->
+    <!-- Over the content and the footer, below the header: the window can still be moved and closed. -->
+    <views:IntroView Grid.Row="1" Grid.RowSpan="2"
+                     DataContext="{Binding Intro}"
+                     IsVisible="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Intro, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+  </Grid>
+</Window>

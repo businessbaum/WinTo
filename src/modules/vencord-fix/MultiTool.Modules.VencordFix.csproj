@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.VencordFix</RootNamespace>
+    <AssemblyName>MultiTool.Modules.VencordFix</AssemblyName>
+  </PropertyGroup>
+
+</Project>

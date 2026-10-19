@@ -1,0 +1,42 @@
+{
+  "id": "capture",
+  "name": "Capture",
+  "summary": "Screenshots, recordings and clips.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Media",
+  "order": 10,
+
+  "icon": "M4 7a3 3 0 0 1 3-3h1a1 1 0 0 1 0 2H7a1 1 0 0 0-1 1v1a1 1 0 0 1-2 0V7Zm11-2a1 1 0 0 1 1-1h1a3 3 0 0 1 3 3v1a1 1 0 1 1-2 0V7a1 1 0 0 0-1-1h-1a1 1 0 0 1-1-1ZM5 15a1 1 0 0 1 1 1v1a1 1 0 0 0 1 1h1a1 1 0 1 1 0 2H7a3 3 0 0 1-3-3v-1a1 1 0 0 1 1-1Zm14 0a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3h-1a1 1 0 1 1 0-2h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1ZM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z",
+  "accent": "#4FB3E8",
+
+  "assembly": "MultiTool.Modules.Capture.dll",
+  "entryType": "MultiTool.Modules.Capture.CaptureModule",
+
+  "keywords": ["screenshot", "capture", "region", "window", "ocr", "text recognition", "text",
+               "recognize", "copy", "snipping", "snip", "print screen", "image", "recording", "record",
+               "clip", "screen", "video", "replay", "buffer", "ffmpeg", "sound", "system audio",
+               "audio", "wasapi", "loopback", "stereo mix", "microphone"],
+
+  "requires": [
+    {
+      "tool": "ffmpeg",
+      "hint": "Needed for recording and clips. winget install Gyan.FFmpeg",
+      "mandatory": false
+    }
+  ],
+
+  "elevation": "never",
+  "keepsRunning": true,
+
+  "closePrompt": {
+    "hint": "Recording, clip buffer and the capture hotkeys run while the tab is open. Closing stops them and discards the ring buffer.",
+    "keep": "Keep open",
+    "close": "Stop and close"
+  },
+
+  "status": {
+    "kind": "cached",
+    "whenFalse": "nothing recorded yet"
+  }
+}

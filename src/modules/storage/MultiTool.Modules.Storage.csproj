@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0 the former disk usage and duplicate finder modules, as two sections
+       (DiskUsage/, Duplicates/). No packages: enumeration via FileSystemEnumerable, drawing via
+       Avalonia; recycle bin and protected locations are in the contract. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Storage</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Storage</AssemblyName>
+
+    <!-- For the LibraryImport source generator (file id against hard links in the duplicate search). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

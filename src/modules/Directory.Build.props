@@ -1,0 +1,43 @@
+<Project>
+
+  <!-- Inherits the conventions from src\Directory.Build.props... -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- ...and adds what makes a module a module. -->
+  <PropertyGroup>
+    <IsModule>true</IsModule>
+
+    <!-- The module id is the folder name: MSBuild evaluates Directory.Build.props BEFORE the
+                  project body, so a property set there would still be empty here. -->
+    <ModuleId>$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)'))</ModuleId>
+
+    <!-- Produces the .deps.json next to the DLL and copies the module's NuGet dependencies
+                  into its folder; the AssemblyDependencyResolver needs both. -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+
+    <!-- Every module gets its own folder; the installer ships this tree as <InstallDir>\modules\. -->
+    <BaseOutputPath>$(RepoRoot)build\modules\$(ModuleId)\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <BaseIntermediateOutputPath>$(RepoRoot)build\obj\$(ModuleId)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The manifest is the only file the host reads at startup. -->
+    <None Update="module.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Avalonia and the contract come from the host's default context. ExcludeAssets=runtime and
+              Private=false keep them out of the module folder; otherwise "Control" is no longer
+              "Control". -->
+  <ItemGroup>
+    <PackageReference Include="Avalonia" ExcludeAssets="runtime" />
+    <PackageReference Include="CommunityToolkit.Mvvm" ExcludeAssets="runtime" />
+    <ProjectReference Include="$(RepoRoot)src\MultiTool.Abstractions\MultiTool.Abstractions.csproj"
+                      Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="$(RepoRoot)src\MultiTool.UI\MultiTool.UI.csproj"
+                      Private="false" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>

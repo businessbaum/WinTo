@@ -1,0 +1,535 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.SystemOverview"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.SystemOverview.SystemOverviewView"
+             x:DataType="local:SystemOverviewViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.SystemOverview/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- ============================ Header ============================ -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="24,18,24,12">
+
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+        <Button Classes="nav" Classes.navActive="{Binding ShowOverview}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="0"
+                Content="Overview" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowAutostart}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="1"
+                Content="Autostart" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowNetwork}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="2"
+                Content="Network" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowVariables}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="3"
+                Content="Variables" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowAudio}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="4"
+                Content="Audio" />
+      </StackPanel>
+
+      <Button Grid.Column="1" Classes="ghost"
+              Command="{Binding RefreshCommand}"
+              IsEnabled="{Binding !IsLoading}"
+              Content="Reload" />
+    </Grid>
+
+    <!-- A message line instead of a dialog: toggling an autostart entry or adapter is minor,
+                  and a window for it would interrupt. -->
+    <Border Grid.Row="1" Classes="notice" Margin="24,0,24,12"
+            IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+            Classes.noticeError="{Binding MessageIsError}">
+      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+    </Border>
+
+    <!-- ========================== Overview ========================== -->
+    <ScrollViewer Grid.Row="2" Padding="24,0,24,24" IsVisible="{Binding ShowOverview}">
+      <StackPanel Spacing="16">
+
+        <WrapPanel ItemSpacing="16" LineSpacing="16">
+
+          <Border Classes="card" Width="420" VerticalAlignment="Top">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Computer" Classes="h2" />
+              <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Name" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding ComputerName}" TextWrapping="Wrap" />
+                </Grid>
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Signed in" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding UserName}" TextWrapping="Wrap" />
+                </Grid>
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Windows" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding Windows}" TextWrapping="Wrap" />
+                </Grid>
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Processor" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding Processor}" TextWrapping="Wrap" />
+                </Grid>
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Graphics" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding Graphics}" TextWrapping="Wrap" />
+                </Grid>
+                <Grid ColumnDefinitions="120,*">
+                  <TextBlock Grid.Column="0" Text="Running for" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding UptimeText}" />
+                </Grid>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" Width="420" VerticalAlignment="Top">
+            <StackPanel Spacing="14">
+              <TextBlock Text="Load" Classes="h2" />
+
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="Processor" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding CpuText}" Classes="mono" />
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="1" Value="{Binding CpuLoad}" Classes="meter" />
+              </StackPanel>
+
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="Memory" Classes="label" />
+                  <TextBlock Grid.Column="1" Text="{Binding MemoryText}" Classes="mono" />
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="1" Value="{Binding MemoryLoad}" Classes="meter" />
+              </StackPanel>
+
+              <StackPanel Spacing="2">
+                <TextBlock Text="Network throughput" Classes="label" />
+                <TextBlock Text="{Binding ThroughputText}" Classes="mono" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" Width="420" VerticalAlignment="Top">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Drives" Classes="h2" />
+              <ItemsControl ItemsSource="{Binding Disks}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="local:DiskVolume">
+                    <StackPanel Spacing="6" Margin="0,0,0,12">
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" Classes="mono" Margin="0,0,10,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Label}" Classes="caption muted"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="2" Text="{Binding FileSystem}" Classes="caption muted" />
+                      </Grid>
+                      <ProgressBar Minimum="0" Maximum="1" Value="{Binding Load}" Classes="meter" />
+                      <TextBlock Text="{Binding UsageText}" Classes="caption muted" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" Width="420" VerticalAlignment="Top">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Default devices" Classes="h2" />
+              <StackPanel Spacing="2">
+                <TextBlock Text="Playback" Classes="label" />
+                <TextBlock Text="{Binding DefaultPlayback}" TextWrapping="Wrap" />
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Text="Recording" Classes="label" />
+                <TextBlock Text="{Binding DefaultRecording}" TextWrapping="Wrap" />
+              </StackPanel>
+              <Button Classes="ghost" HorizontalAlignment="Left"
+                      Command="{Binding OpenSoundSettingsCommand}"
+                      Content="Open Windows sound" />
+            </StackPanel>
+          </Border>
+
+        </WrapPanel>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ========================== Autostart ========================== -->
+    <Grid Grid.Row="2" RowDefinitions="Auto,*" IsVisible="{Binding ShowAutostart}" Margin="24,0,24,24">
+
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,12">
+        <TextBlock Grid.Column="0"
+                   Classes="caption muted"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Text="Disabling keeps the entry, so it can be turned back on." />
+        <Button Grid.Column="1" Classes="ghost" Margin="12,0,8,0"
+                Command="{Binding OpenStartupFolderCommand}"
+                Content="Open folder" />
+        <Button Grid.Column="2" Classes="ghost" Margin="0,0,8,0"
+                Command="{Binding OpenTaskManagerStartupCommand}"
+                Content="Windows autostart" />
+        <Button Grid.Column="3" Classes="ghost"
+                IsVisible="{Binding CanElevate}"
+                Command="{Binding ElevateCommand}"
+                ToolTip.Tip="Entries under &quot;All users&quot; need administrator rights. Restarts WinTo elevated with this module open."
+                Content="As administrator" />
+      </Grid>
+
+      <ScrollViewer Grid.Row="1" Classes="list">
+        <ItemsControl ItemsSource="{Binding AutostartEntries}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:AutostartRow">
+              <Border Classes="row" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+
+                  <ToggleSwitch Grid.Column="0"
+                                IsChecked="{Binding Enabled}"
+                                IsEnabled="{Binding CanToggle}"
+                                Margin="0,0,14,0"
+                                VerticalAlignment="Center" />
+
+                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Detail}" Classes="caption muted"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip.Tip="{Binding Detail}" />
+                  </StackPanel>
+
+                  <Border Grid.Column="2" Classes="badge" Padding="9,3" VerticalAlignment="Center" Margin="12,0,8,0">
+                    <TextBlock Text="{Binding LocationText}" />
+                  </Border>
+
+                  <Button Grid.Column="3"
+                          Classes="ghost rowAction"
+                          Content="Remove"
+                          VerticalAlignment="Center"
+                          Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).RemoveCommand}"
+                          CommandParameter="{Binding}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- ========================== Network ========================== -->
+    <Grid Grid.Row="2" RowDefinitions="Auto,*" IsVisible="{Binding ShowNetwork}" Margin="24,0,24,24">
+
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,12">
+        <TextBlock Grid.Column="0" Text="{Binding ThroughputText}" Classes="mono h2" VerticalAlignment="Center" />
+
+        <Button Grid.Column="1" Classes="ghost" Margin="0,0,8,0"
+                IsVisible="{Binding CanElevate}"
+                Command="{Binding ElevateCommand}"
+                ToolTip.Tip="Switching adapters needs administrator rights."
+                Content="As administrator" />
+
+        <Button Grid.Column="2" Classes="ghost"
+                Command="{Binding OpenNetworkConnectionsCommand}"
+                ToolTip.Tip="Opens Windows network connections, where static IP, DNS and sharing are set."
+                Content="Windows network connections" />
+      </Grid>
+
+      <ScrollViewer Grid.Row="1" Classes="list">
+        <ItemsControl ItemsSource="{Binding Adapters}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:AdapterRow">
+              <Border Classes="card" Margin="0,0,0,12" Classes.adapterOff="{Binding !Enabled}">
+                <StackPanel Spacing="10">
+
+                  <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+                    <ToggleSwitch Grid.Column="0"
+                                  IsChecked="{Binding Enabled}"
+                                  Margin="0,0,14,0"
+                                  VerticalAlignment="Center"
+                                  ToolTip.Tip="Disables or enables the adapter. Needs administrator rights." />
+
+                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" Classes="h3" TextTrimming="CharacterEllipsis" />
+                        <Border Classes="badge" Padding="8,2" VerticalAlignment="Center"
+                                IsVisible="{Binding IsDefaultRoute}">
+                          <TextBlock Text="Default route" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Text="{Binding Description}" Classes="caption muted"
+                                 TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="2" Text="{Binding StateText}" Classes="caption"
+                               VerticalAlignment="Center" Margin="12,0,0,0" />
+
+                    <Border Grid.Column="3" Classes="badge" Padding="9,3" Margin="10,0,8,0" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Kind}" />
+                    </Border>
+
+                    <TextBlock Grid.Column="4" Text="{Binding Speed}" Classes="caption muted"
+                               VerticalAlignment="Center" />
+                  </Grid>
+
+                  <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                        IsVisible="{Binding IsUp}">
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Addresses" Classes="label" />
+                    <SelectableTextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Addresses}" Classes="mono" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Gateway" Classes="label" Margin="0,6,0,0" />
+                    <SelectableTextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Gateway}" Classes="mono" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="DNS" Classes="label" Margin="0,6,0,0" />
+                    <SelectableTextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Dns}" Classes="mono" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="MAC" Classes="label" Margin="0,6,0,0" />
+                    <SelectableTextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MacAddress}" Classes="mono" Margin="0,6,0,0" />
+                  </Grid>
+
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- ========================= Variables ========================= -->
+    <Grid Grid.Row="2" RowDefinitions="Auto,Auto,*" IsVisible="{Binding ShowVariables}" Margin="24,0,24,24">
+
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,12">
+        <TextBox Grid.Column="0" Text="{Binding VariableFilter}"
+                 PlaceholderText="Search name or value" MaxWidth="360"
+                 HorizontalAlignment="Left" />
+
+        <!-- Undo for save, create and delete. The history lives in the data folder and survives
+                          closing (see VariableHistory). -->
+        <Button Grid.Column="1" Classes="ghost" Margin="0,0,8,0"
+                IsVisible="{Binding CanUndoVariable}"
+                Command="{Binding UndoVariableCommand}"
+                ToolTip.Tip="{Binding UndoVariableTip}"
+                Content="Undo" />
+
+        <Button Grid.Column="2" Classes="ghost" Margin="0,0,8,0"
+                IsVisible="{Binding CanElevate}"
+                Command="{Binding ElevateCommand}"
+                ToolTip.Tip="System variables under HKEY_LOCAL_MACHINE need administrator rights. User variables don't."
+                Content="As administrator" />
+
+        <Button Grid.Column="3" Classes="ghost"
+                Command="{Binding OpenWindowsVariablesCommand}"
+                ToolTip.Tip="Opens the Windows dialog."
+                Content="Windows dialog" />
+      </Grid>
+
+      <!-- Creating: a line above the list instead of a dialog for two text fields. -->
+      <Border Grid.Row="1" Classes="card" Padding="14,12" Margin="0,0,0,12">
+        <Grid ColumnDefinitions="200,*,Auto,Auto">
+          <TextBox Grid.Column="0" Text="{Binding NewVariableName}"
+                   PlaceholderText="New name" Margin="0,0,8,0" />
+          <TextBox Grid.Column="1" Text="{Binding NewVariableValue}" Classes="mono"
+                   PlaceholderText="Value" Margin="0,0,12,0" />
+          <CheckBox Grid.Column="2" IsChecked="{Binding NewVariableForMachine}"
+                    Content="for all users" VerticalAlignment="Center" Margin="0,0,12,0"
+                    ToolTip.Tip="Off: applies only to the current user account, without administrator rights." />
+          <Button Grid.Column="3" Classes="accent"
+                  Command="{Binding CreateVariableCommand}" Content="Create" />
+        </Grid>
+      </Border>
+
+      <ScrollViewer Grid.Row="2" Classes="list">
+        <ItemsControl ItemsSource="{Binding Variables}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:VariableRow">
+              <Border Classes="card" Margin="0,0,0,10" Padding="14,12">
+                <StackPanel Spacing="10">
+
+                  <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                    <Border Grid.Column="0" Classes="badge" Padding="8,2" Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                      <TextBlock Text="{Binding ScopeText}" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Name}" Classes="h3" />
+                        <Border Classes="badge badgeWarn" Padding="8,2" VerticalAlignment="Center"
+                                IsVisible="{Binding HasProblems}">
+                          <TextBlock Text="{Binding ProblemCount, StringFormat='{}{0} flagged'}" />
+                        </Border>
+                        <Border Classes="badge badgeDirty" Padding="8,2" VerticalAlignment="Center"
+                                IsVisible="{Binding IsDirty}">
+                          <TextBlock Text="changed" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Text="{Binding SummaryText}" Classes="caption muted"
+                                 IsVisible="{Binding IsList}" />
+                      <TextBlock Text="{Binding Value}" Classes="caption muted mono"
+                                 IsVisible="{Binding !IsList}"
+                                 TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <Button Grid.Column="2" Classes="ghost" Margin="8,0,0,0"
+                            Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).ToggleVariableCommand}"
+                            CommandParameter="{Binding}"
+                            Content="Edit" />
+
+                    <Button Grid.Column="3" Classes="ghost" Margin="8,0,0,0"
+                            Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).RemoveVariableCommand}"
+                            CommandParameter="{Binding}"
+                            Content="Delete" />
+                  </Grid>
+
+                  <StackPanel Spacing="10" IsVisible="{Binding IsExpanded}">
+
+                    <!-- The split list is the real editor for Path and the like; the raw field below is the escape hatch. -->
+                    <ItemsControl ItemsSource="{Binding Entries}" IsVisible="{Binding IsList}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="local:ListEntry">
+                          <Border Classes="entry" Classes.entryBad="{Binding IsProblem}" Margin="0,0,0,4">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                              <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Text}" Classes="mono caption" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Expanded}" Classes="mono caption muted"
+                                           IsVisible="{Binding ShowExpanded}"
+                                           TextTrimming="CharacterEllipsis" />
+                              </StackPanel>
+
+                              <TextBlock Grid.Column="1" Text="{Binding ProblemText}" Classes="caption"
+                                         Foreground="{DynamicResource WarningBrush}"
+                                         VerticalAlignment="Center" Margin="12,0,0,0" />
+
+                              <Button Grid.Column="2" Classes="ghost" Content="✕" Padding="8,2" Margin="10,0,0,0"
+                                      Command="{Binding $parent[ItemsControl].((local:VariableRow)DataContext).DropEntryCommand}"
+                                      CommandParameter="{Binding}" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBox Text="{Binding Value}" Classes="mono" AcceptsReturn="False"
+                             TextWrapping="Wrap" MaxHeight="120" />
+
+                    <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto">
+                      <Button Grid.Column="0" Classes="ghost" Margin="0,0,8,0"
+                              IsVisible="{Binding IsList}"
+                              Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).AppendFolderCommand}"
+                              CommandParameter="{Binding}"
+                              Content="Add folder" />
+
+                      <Button Grid.Column="1" Classes="ghost"
+                              IsVisible="{Binding HasProblems}"
+                              Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).CleanVariableCommand}"
+                              CommandParameter="{Binding}"
+                              ToolTip.Tip="Removes missing and duplicate entries. Written only with &quot;Save&quot;."
+                              Content="Remove flagged" />
+
+                      <Button Grid.Column="3" Classes="ghost" Margin="0,0,8,0"
+                              IsVisible="{Binding IsDirty}"
+                              Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).RevertVariableCommand}"
+                              CommandParameter="{Binding}"
+                              Content="Discard" />
+
+                      <Button Grid.Column="4" Classes="accent"
+                              IsEnabled="{Binding IsDirty}"
+                              Command="{Binding $parent[ItemsControl].((local:SystemOverviewViewModel)DataContext).SaveVariableCommand}"
+                              CommandParameter="{Binding}"
+                              Content="Save" />
+                    </Grid>
+                  </StackPanel>
+
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- ============================ Audio ============================ -->
+    <ScrollViewer Grid.Row="2" Padding="24,0,24,24" IsVisible="{Binding ShowAudio}">
+      <StackPanel Spacing="16">
+
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Playback" Classes="h2" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="ghost"
+                      Command="{Binding OpenSoundSettingsCommand}"
+                      ToolTip.Tip="Opens Windows sound settings. The default device can only be switched there."
+                      Content="Open Windows sound" />
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Playback}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:AudioRow">
+                  <Grid ColumnDefinitions="Auto,240,*,Auto,Auto" Margin="0,0,0,10">
+                    <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,10,0"
+                             VerticalAlignment="Center"
+                             Fill="{DynamicResource AccentBrush}"
+                             IsVisible="{Binding IsDefault}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" ToolTip.Tip="{Binding Name}" />
+
+                    <Slider Grid.Column="2" Minimum="0" Maximum="100"
+                            Value="{Binding Volume}"
+                            IsVisible="{Binding HasVolume}"
+                            Margin="16,0,12,0"
+                            VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Column="3" Text="{Binding VolumeText}" Classes="mono caption muted"
+                               VerticalAlignment="Center" Width="46" TextAlignment="Right"
+                               IsVisible="{Binding HasVolume}" />
+
+                    <CheckBox Grid.Column="4" IsChecked="{Binding Muted}" Content="mute"
+                              Margin="14,0,0,0" VerticalAlignment="Center"
+                              IsVisible="{Binding HasVolume}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Recording" Classes="h2" />
+            <ItemsControl ItemsSource="{Binding Recording}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:AudioRow">
+                  <Grid ColumnDefinitions="Auto,240,*,Auto,Auto" Margin="0,0,0,10">
+                    <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,10,0"
+                             VerticalAlignment="Center"
+                             Fill="{DynamicResource AccentBrush}"
+                             IsVisible="{Binding IsDefault}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" ToolTip.Tip="{Binding Name}" />
+
+                    <Slider Grid.Column="2" Minimum="0" Maximum="100"
+                            Value="{Binding Volume}"
+                            IsVisible="{Binding HasVolume}"
+                            Margin="16,0,12,0"
+                            VerticalAlignment="Center" />
+
+                    <TextBlock Grid.Column="3" Text="{Binding VolumeText}" Classes="mono caption muted"
+                               VerticalAlignment="Center" Width="46" TextAlignment="Right"
+                               IsVisible="{Binding HasVolume}" />
+
+                    <CheckBox Grid.Column="4" IsChecked="{Binding Muted}" Content="mute"
+                              Margin="14,0,0,0" VerticalAlignment="Center"
+                              IsVisible="{Binding HasVolume}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                   Text="The dot marks the default device. Changes apply immediately." />
+      </StackPanel>
+    </ScrollViewer>
+
+  </Grid>
+</UserControl>

@@ -1,0 +1,283 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Apps.Packages"
+             xmlns:sys="using:System"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Apps.Packages.PackagesView"
+             x:DataType="local:PackagesViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Apps/Packages/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="24,18,24,24">
+
+    <!-- ============================ Header ============================ -->
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,12">
+
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+        <Button Classes="nav" Classes.navActive="{Binding ShowSearch}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="0"
+                Content="Search" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowUpdates}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="1"
+                Content="{Binding UpdateCountText}" />
+        <Button Classes="nav" Classes.navActive="{Binding ShowInstalled}"
+                Command="{Binding SelectSectionCommand}" CommandParameter="2"
+                Content="Installed" />
+      </StackPanel>
+
+      <TextBlock Grid.Column="1" Text="{Binding ToolText}" Classes="caption muted"
+                 VerticalAlignment="Center" Margin="18,0" TextTrimming="CharacterEllipsis" />
+
+      <Button Grid.Column="2" Classes="ghost" Margin="0,0,8,0"
+              IsVisible="{Binding CanElevate}"
+              Command="{Binding ElevateCommand}"
+              ToolTip.Tip="Restarts with administrator rights. Only needed for installers that don't request rights themselves."
+              Content="As administrator" />
+
+      <Button Grid.Column="3" Classes="ghost"
+              IsEnabled="{Binding !IsLoading}"
+              Command="{Binding RefreshCommand}"
+              Content="Reload" />
+    </Grid>
+
+    <!-- ========================= Search field ========================= -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,12" IsVisible="{Binding ShowSearch}">
+      <TextBox Grid.Column="0" Text="{Binding Query}" Margin="0,0,8,0"
+               PlaceholderText="Search packages: name, publisher or id">
+        <!-- Enter searches. -->
+        <TextBox.KeyBindings>
+          <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" />
+        </TextBox.KeyBindings>
+      </TextBox>
+      <Button Grid.Column="1" Classes="accent"
+              IsEnabled="{Binding IsReady}"
+              Command="{Binding SearchCommand}"
+              Content="Search" />
+    </Grid>
+
+    <!-- ========================= Filter ========================= -->
+    <Border Grid.Row="1" Classes="search" Margin="0,0,0,12" IsVisible="{Binding ShowInstalled}">
+      <TextBox Classes="plain" Text="{Binding Filter}"
+               PlaceholderText="Filter the list" />
+    </Border>
+
+    <!-- ========================= Message line ========================= -->
+    <StackPanel Grid.Row="2" Spacing="10" Margin="0,0,0,12">
+
+      <Border Classes="notice" Classes.noticeError="{Binding MessageIsError}"
+              IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+
+      <!-- The cause, not the symptom: winget downloads via Delivery Optimization by default,
+                      which occasionally stalls without a word. -->
+      <Border Classes="notice noticeWarn" IsVisible="{Binding ShowDownloaderHint}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="winget downloads via Delivery Optimization" FontWeight="600" />
+            <TextBlock Classes="caption" TextWrapping="Wrap"
+                       Text="This Windows service occasionally stalls on large packages without reporting it. Direct download bypasses it." />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Center" Margin="12,0,0,0"
+                  Command="{Binding UseDirectDownloadCommand}"
+                  Content="Download directly" />
+        </Grid>
+      </Border>
+
+      <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding ShowUpdates}">
+        <TextBlock Grid.Column="0" Classes="caption muted" VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Text="Only packages with a winget source update here." />
+        <Button Grid.Column="1" Classes="accent" Margin="12,0,0,0"
+                IsVisible="{Binding HasUpdates}"
+                IsEnabled="{Binding !IsWorking}"
+                Command="{Binding UpgradeAllCommand}"
+                Content="Update all" />
+      </Grid>
+
+      <StackPanel Spacing="4" IsVisible="{Binding IsLoading}">
+        <TextBlock Text="Reading package list. This takes a few seconds."
+                   Classes="caption muted" TextWrapping="Wrap" />
+        <ProgressBar Height="4" CornerRadius="2" IsIndeterminate="True"
+                     Foreground="{DynamicResource AccentBrush}"
+                     Background="{DynamicResource BgElevatedBrush}" />
+      </StackPanel>
+
+      <StackPanel Spacing="4" IsVisible="{Binding IsWorking}">
+        <Grid ColumnDefinitions="*,Auto,Auto">
+          <TextBlock Grid.Column="0" Text="{Binding RunningText}" Classes="caption"
+                     Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis" />
+
+          <!-- The bar alone doesn't say whether it is 90 % of 3 MB or of 220 MB. -->
+          <TextBlock Grid.Column="1" Text="{Binding ProgressText}" Classes="caption mono"
+                     VerticalAlignment="Center" Margin="12,0,12,0"
+                     IsVisible="{Binding ProgressText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+          <Button Grid.Column="2" Classes="danger" Command="{Binding CancelCommand}"
+                  Content="Cancel" />
+        </Grid>
+        <ProgressBar Height="4" CornerRadius="2" Minimum="0" Maximum="1"
+                     Value="{Binding Progress}"
+                     IsIndeterminate="{Binding !ProgressIsKnown}"
+                     Foreground="{DynamicResource AccentBrush}"
+                     Background="{DynamicResource BgElevatedBrush}" />
+
+        <!-- A moving bar says nothing about whether data still arrives; this line does. -->
+        <TextBlock Classes="caption" TextWrapping="Wrap" Margin="0,4,0,0"
+                   Foreground="{DynamicResource WarningBrush}"
+                   Text="{Binding StallText}"
+                   IsVisible="{Binding StallText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </StackPanel>
+    </StackPanel>
+
+    <!-- ============================ Lists ============================ -->
+
+    <!-- Updates -->
+    <ScrollViewer Grid.Row="3" Classes="list" IsVisible="{Binding ShowUpdates}">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="caption muted" IsVisible="{Binding !HasUpdates}"
+                   Text="Everything is up to date." />
+
+        <ItemsControl ItemsSource="{Binding Updates}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:PackageRow">
+              <Border Classes="pkg" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                  <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Id}" Classes="caption muted mono"
+                               TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center" Margin="12,0,12,0">
+                    <TextBlock Text="{Binding VersionText}" Classes="mono caption"
+                               HorizontalAlignment="Right" />
+                    <TextBlock Text="{Binding StatusText}" Classes="caption"
+                               HorizontalAlignment="Right"
+                               IsVisible="{Binding HasStatus}"
+                               Classes.rowError="{Binding StatusIsError}" />
+                  </StackPanel>
+
+                  <Button Grid.Column="2" Classes="accent"
+                          VerticalAlignment="Center"
+                          IsEnabled="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).IsWorking,
+                                              Converter={x:Static BoolConverters.Not}}"
+                          Command="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).UpgradeCommand}"
+                          CommandParameter="{Binding}"
+                          Content="Update" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Installed -->
+    <ScrollViewer Grid.Row="3" Classes="list" IsVisible="{Binding ShowInstalled}">
+      <ItemsControl ItemsSource="{Binding Installed}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <!-- Virtualized: hundreds of entries, of which ten are visible. -->
+            <VirtualizingStackPanel />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="local:PackageRow">
+            <Border Classes="pkg" Margin="0,0,0,6" Classes.pkgForeign="{Binding !IsManaged}">
+              <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding Id}" Classes="caption muted mono"
+                             TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="{Binding VersionText}" Classes="mono caption"
+                           VerticalAlignment="Center" Margin="12,0,12,0" />
+
+                <Border Grid.Column="2" Classes="badge" Padding="8,2" VerticalAlignment="Center"
+                        Margin="0,0,8,0"
+                        IsVisible="{Binding !IsManaged}"
+                        ToolTip.Tip="Not installed via winget. winget can neither update nor remove it.">
+                  <TextBlock Text="no source" />
+                </Border>
+
+                <Button Grid.Column="3" Classes="ghost pkgAction"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsManaged}"
+                        IsEnabled="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).IsWorking,
+                                            Converter={x:Static BoolConverters.Not}}"
+                        Command="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).UninstallCommand}"
+                        CommandParameter="{Binding}"
+                        Content="Remove" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+
+    <!-- Search -->
+    <ScrollViewer Grid.Row="3" Classes="list" IsVisible="{Binding ShowSearch}">
+      <StackPanel Spacing="8">
+        <TextBlock Text="{Binding SearchHint}" Classes="caption muted"
+                   IsVisible="{Binding SearchHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        <ItemsControl ItemsSource="{Binding Results}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:PackageRow">
+              <Border Classes="pkg" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                  <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Id}" Classes="caption muted mono"
+                               TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center" Margin="12,0,12,0">
+                    <TextBlock Text="{Binding VersionText}" Classes="mono caption"
+                               HorizontalAlignment="Right" />
+                    <TextBlock Text="{Binding StatusText}" Classes="caption"
+                               HorizontalAlignment="Right"
+                               IsVisible="{Binding HasStatus}"
+                               Classes.rowError="{Binding StatusIsError}" />
+                  </StackPanel>
+
+                  <Button Grid.Column="2" Classes="accent"
+                          VerticalAlignment="Center"
+                          IsEnabled="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).IsWorking,
+                                              Converter={x:Static BoolConverters.Not}}"
+                          Command="{Binding $parent[ItemsControl].((local:PackagesViewModel)DataContext).InstallCommand}"
+                          CommandParameter="{Binding}"
+                          Content="Install" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ============================ Log ============================ -->
+    <Border Grid.Row="4" Classes="card" Padding="12" Margin="0,12,0,0" MaxHeight="150"
+            IsVisible="{Binding HasLog}">
+      <ScrollViewer Classes="list">
+        <ItemsControl ItemsSource="{Binding Log}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sys:String">
+              <TextBlock Text="{Binding}" Classes="mono caption muted" TextWrapping="Wrap"
+                         Margin="0,0,0,2" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+
+  </Grid>
+</UserControl>

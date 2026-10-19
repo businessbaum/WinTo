@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Storage.DiskUsage"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Storage.DiskUsage.DiskUsageView"
+             x:DataType="local:DiskUsageViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Storage/DiskUsage/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="24,18,24,20">
+
+    <!-- ========================= Drives ========================= -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <ItemsControl Grid.Column="0" ItemsSource="{Binding Drives}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="local:DriveRow">
+            <Button Classes="drive" Width="210"
+                    Command="{Binding $parent[ItemsControl].((local:DiskUsageViewModel)DataContext).ScanDriveCommand}"
+                    CommandParameter="{Binding}"
+                    IsEnabled="{Binding !$parent[ItemsControl].((local:DiskUsageViewModel)DataContext).IsScanning}">
+              <StackPanel Spacing="5">
+                <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <ProgressBar Classes="usage" Value="{Binding Percent}" Maximum="100" />
+                <TextBlock Text="{Binding Detail}" Classes="caption muted" />
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+        <Button Classes="ghost" Command="{Binding PickFolderCommand}" IsEnabled="{Binding !IsScanning}"
+                Content="Folder…" />
+        <Button Classes="danger" Command="{Binding CancelCommand}" IsVisible="{Binding IsScanning}"
+                Content="Cancel" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ========================= Progress and messages ========================= -->
+    <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,10">
+      <StackPanel Spacing="6" IsVisible="{Binding IsScanning}">
+        <ProgressBar IsIndeterminate="True" Height="3" />
+        <TextBlock Text="{Binding ProgressText}" Classes="caption mono" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+
+      <Border Classes="notice" Classes.error="{Binding MessageIsError}"
+              IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+
+    <!-- ========================= Path and actions ========================= -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,10" IsVisible="{Binding HasResult}">
+      <Button Grid.Column="0" Classes="ghost icon" Command="{Binding UpCommand}"
+              ToolTip.Tip="One level up" Margin="0,0,6,0">
+        <PathIcon Data="M12 5a1 1 0 0 1 .7.3l6 6a1 1 0 0 1-1.4 1.4L13 8.4V18a1 1 0 1 1-2 0V8.4l-4.3 4.3a1 1 0 0 1-1.4-1.4l6-6A1 1 0 0 1 12 5Z"
+                  Classes="small muted" />
+      </Button>
+
+      <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+        <ItemsControl ItemsSource="{Binding Breadcrumbs}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:Crumb">
+              <StackPanel Orientation="Horizontal">
+                <Button Classes="crumb"
+                        Command="{Binding $parent[ItemsControl].((local:DiskUsageViewModel)DataContext).NavigateCommand}"
+                        CommandParameter="{Binding}"
+                        Content="{Binding Name}" />
+                <TextBlock Text="›" Classes="muted" VerticalAlignment="Center" Margin="2,0" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Text="{Binding SummaryText}" Classes="caption muted" Margin="6,0,0,0" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <Button Classes="ghost" Command="{Binding RescanCommand}" IsEnabled="{Binding !IsScanning}"
+                ToolTip.Tip="Rescan this folder" Content="Rescan" />
+        <Button Classes="ghost" Command="{Binding FindDuplicatesCommand}"
+                ToolTip.Tip="Opens the duplicate finder for the selected folder, otherwise for this one."
+                Content="Find duplicates" />
+        <Button Classes="ghost" Command="{Binding RevealCommand}" Content="In Explorer" />
+        <Button Classes="danger" Command="{Binding RecycleCommand}" IsEnabled="{Binding CanActOnSelection}"
+                ToolTip.Tip="Moves the selection to the recycle bin. Drives, Windows and known folders are excluded."
+                Content="Move to recycle bin" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ========================= Map and list ========================= -->
+    <Grid Grid.Row="3" ColumnDefinitions="*,340" IsVisible="{Binding HasResult}">
+      <Border Grid.Column="0" Classes="map" Margin="0,0,14,0">
+        <local:TreemapControl Name="Map" Items="{Binding Items}" SelectedItem="{Binding Selected}" />
+      </Border>
+
+      <ListBox Grid.Column="1" Classes="rows" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow}"
+               DoubleTapped="OnRowDoubleTapped">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="local:ListRow">
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" TextTrimming="CharacterEllipsis"
+                         FontWeight="SemiBold" Classes.folder="{Binding IsFolder}" />
+              <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SizeText}" Classes="mono caption" Margin="8,0,0,0" />
+              <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Classes="share" Value="{Binding Percent}" Maximum="100"
+                           Margin="0,4,0,0" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+
+    <StackPanel Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6"
+                IsVisible="{Binding IsEmpty}">
+      <TextBlock Text="Choose a drive or a folder." Classes="h3" HorizontalAlignment="Center" />
+      <TextBlock Text="Larger entries take more area, scaled so small ones stay visible. Double-click opens a folder."
+                 Classes="caption muted" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <!-- ========================= Below the map ========================= -->
+    <TextBlock Grid.Row="4" Classes="caption mono" Margin="0,10,0,0" TextTrimming="CharacterEllipsis"
+               Text="{Binding HoverText}" IsVisible="{Binding HasResult}" />
+  </Grid>
+</UserControl>

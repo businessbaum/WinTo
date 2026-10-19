@@ -1,0 +1,173 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.ClipboardTray"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.ClipboardTray.ClipboardTrayView"
+             x:DataType="local:ClipboardTrayViewModel"
+             Focusable="True">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.ClipboardTray/Styles.axaml" />
+  </UserControl.Styles>
+
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Ctrl+V" Command="{Binding PasteCommand}" />
+    <KeyBinding Gesture="Escape" Command="{Binding ClosePreviewCommand}" />
+  </UserControl.KeyBindings>
+
+  <Panel>
+    <Grid RowDefinitions="Auto,Auto,*" Margin="24,18,24,24">
+
+      <!-- Header -->
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+        <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Summary}" Classes="h2" />
+          <TextBlock Classes="caption muted"
+                     Text="Ctrl+V adds. Click to enlarge, double-click to copy back." />
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Classes="accent" Command="{Binding PasteCommand}" Content="Add" />
+          <Button Classes="ghost" Command="{Binding ClearAllCommand}" Content="Discard all"
+                  IsVisible="{Binding HasEntries}" />
+        </StackPanel>
+      </Grid>
+
+      <Border Grid.Row="1" Classes="notice" Classes.noticeError="{Binding MessageIsError}"
+              Margin="0,0,0,12"
+              IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+
+      <!-- Empty shelf -->
+      <Border Grid.Row="2" Classes="empty" IsVisible="{Binding IsEmpty}">
+        <StackPanel Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420">
+          <TextBlock Text="Nothing on the shelf yet." Classes="h3" HorizontalAlignment="Center" />
+          <TextBlock Classes="caption muted" TextWrapping="Wrap" TextAlignment="Center"
+                     Text="Or drag images, text and files here. Cleared on close." />
+        </StackPanel>
+      </Border>
+
+      <!-- The cards -->
+      <ScrollViewer Grid.Row="2" Classes="list" IsVisible="{Binding HasEntries}">
+        <ItemsControl ItemsSource="{Binding Entries}" Margin="0,0,0,8">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:TrayEntry">
+
+              <!-- A Border, not a Button: a button knows one click, here one and two mean different things. -->
+              <Border Classes="card" Width="248" Margin="0,0,12,12"
+                      Tapped="OnCardTapped" DoubleTapped="OnCardDoubleTapped">
+                <Panel>
+                  <Grid RowDefinitions="Auto,*,Auto">
+
+                    <!-- Preview -->
+                    <Border Grid.Row="0" Classes="preview" IsVisible="{Binding HasThumbnail}">
+                      <Image Source="{Binding Thumbnail}" Height="124" Stretch="UniformToFill"
+                             HorizontalAlignment="Stretch" />
+                    </Border>
+
+                    <!-- Text -->
+                    <TextBlock Grid.Row="1" Text="{Binding Text}" Classes="mono preview"
+                               IsVisible="{Binding IsText}"
+                               TextWrapping="Wrap" MaxLines="7" TextTrimming="CharacterEllipsis"
+                               Margin="12,12,12,8" />
+
+                    <!-- File name when there is no preview -->
+                    <TextBlock Grid.Row="1" Text="{Binding Title}" Classes="fileName"
+                               IsVisible="{Binding IsFiles}"
+                               TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"
+                               Margin="12,12,12,8" />
+
+                    <!-- Footer -->
+                    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="12,0,8,10">
+                      <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" Classes="caption"
+                                   IsVisible="{Binding IsImage}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="caption muted" TextTrimming="CharacterEllipsis">
+                          <Run Text="{Binding Time, Mode=OneWay}" />
+                          <Run Text="·" />
+                          <Run Text="{Binding Detail, Mode=OneWay}" />
+                        </TextBlock>
+                      </StackPanel>
+
+                      <Button Grid.Column="1" Classes="drop" ToolTip.Tip="Remove from the shelf"
+                              Command="{Binding $parent[ItemsControl].((local:ClipboardTrayViewModel)DataContext).RemoveCommand}"
+                              CommandParameter="{Binding}"
+                              Content="✕" />
+                    </Grid>
+                  </Grid>
+
+                  <Border Classes="flash" IsVisible="{Binding JustCopied}">
+                    <TextBlock Text="Copied" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Border>
+                </Panel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- The preview. A click beside it or Esc closes it. -->
+    <Border Classes="overlay" IsVisible="{Binding HasPreview}" Tapped="OnOverlayTapped">
+      <Border Classes="previewCard" MaxWidth="1200" MaxHeight="820"
+              Margin="48" Tapped="OnPreviewCardTapped">
+        <Grid RowDefinitions="Auto,*,Auto">
+
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="20,16,12,12">
+            <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Preview.Title}" Classes="h3" TextTrimming="CharacterEllipsis" />
+              <TextBlock Classes="caption muted">
+                <Run Text="{Binding Preview.Time, Mode=OneWay}" />
+                <Run Text="·" />
+                <Run Text="{Binding Preview.Detail, Mode=OneWay}" />
+              </TextBlock>
+            </StackPanel>
+
+            <Button Grid.Column="1" Classes="drop" Command="{Binding ClosePreviewCommand}"
+                    Content="✕" ToolTip.Tip="Close (Esc)" />
+          </Grid>
+
+          <!-- Image -->
+          <Border Grid.Row="1" Classes="previewStage" IsVisible="{Binding Preview.IsImage}">
+            <Image Source="{Binding PreviewImage}" Stretch="Uniform" StretchDirection="DownOnly" />
+          </Border>
+
+          <!-- Text -->
+          <ScrollViewer Grid.Row="1" Classes="list" IsVisible="{Binding Preview.IsText}"
+                        Margin="20,0,20,0">
+            <SelectableTextBlock Text="{Binding Preview.Text}" Classes="mono" TextWrapping="Wrap" />
+          </ScrollViewer>
+
+          <!-- Files -->
+          <ScrollViewer Grid.Row="1" Classes="list" IsVisible="{Binding Preview.IsFiles}"
+                        Margin="20,0,20,0">
+            <ItemsControl ItemsSource="{Binding Preview.Files}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <SelectableTextBlock Text="{Binding}" Classes="mono" TextWrapping="Wrap"
+                                       Margin="0,0,0,4" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8"
+                      HorizontalAlignment="Right" Margin="20,12,20,16">
+            <Button Classes="ghost" Command="{Binding ClosePreviewCommand}" Content="Close" />
+            <Button Classes="accent" Command="{Binding CopyPreviewCommand}" Content="Copy" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </Border>
+  </Panel>
+</UserControl>

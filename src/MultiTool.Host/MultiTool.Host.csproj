@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MultiTool.Host</RootNamespace>
+    <AssemblyName>WinTo</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+
+    <!-- LibraryImport generates pointer marshalling code. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- The host must register every framework a module needs: a module's .runtimeconfig.json
+                  is ignored when loading through a load context. NAudio pulls NAudio.WinForms, so
+                  without this the soundboard fails with FileNotFoundException on
+                  System.Windows.Forms. Registered is not loaded; it costs nothing at startup. -->
+    <UseWindowsForms>true</UseWindowsForms>
+
+    <!-- Never trimmed: modules are resolved by type name from JSON, which a trimmer cannot see.
+                  Startup speed comes from ReadyToRun instead. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <!-- UseWindowsForms adds global usings for System.Windows.Forms and System.Drawing, which
+              makes Control, Application, Color and Brushes ambiguous. Neither is used here. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MultiTool.Abstractions\MultiTool.Abstractions.csproj" />
+    <ProjectReference Include="..\MultiTool.UI\MultiTool.UI.csproj" />
+  </ItemGroup>
+
+  <!-- Drop debug symbols from the publish output. Skia and HarfBuzz ship native .pdb files
+           (about 100 MB together) that only help someone debugging Skia itself. Safe to remove:
+           our own assemblies embed their symbols (DebugType=embedded). -->
+  <Target Name="PublishWithoutSymbols" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

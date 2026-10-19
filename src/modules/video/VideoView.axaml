@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Video"
+             x:Class="MultiTool.Modules.Video.VideoView"
+             x:DataType="local:VideoViewModel"
+             Focusable="True">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Video/Styles.axaml" />
+  </UserControl.Styles>
+
+  <!-- The video and its timeline; editing opens a panel on the right. The video area is a native window:
+       nothing can be drawn over it, so every control sits around it. -->
+  <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,Auto">
+
+    <!-- ========================= Bar ========================= -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto" Margin="16,10,16,8">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button Classes="ghost icon" Command="{Binding OpenFileCommand}" ToolTip.Tip="Open a video (Ctrl+O)">
+          <PathIcon Data="{DynamicResource VideoOpen}" Classes="small" />
+        </Button>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="{Binding Title}" FontWeight="600" TextTrimming="CharacterEllipsis" MaxWidth="460" />
+          <TextBlock Text="{Binding InfoText}" Classes="caption muted"
+                     IsVisible="{Binding InfoText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasVideo}">
+        <Button Classes="ghost" Content="Save frame" Command="{Binding SnapshotCommand}" ToolTip.Tip="The frame under the playhead as a PNG next to the video" />
+        <Button Classes="ghost" Content="Show in Explorer" Command="{Binding RevealCommand}" />
+        <ToggleButton Classes="toggle" IsChecked="{Binding ShowPanel}" Content="Edit" ToolTip.Tip="Cut, convert, compress (E)" />
+      </StackPanel>
+    </Grid>
+
+    <!-- ========================= Video ========================= -->
+    <Border Grid.Row="1" Grid.Column="0" Classes="stage" Margin="16,0,16,0">
+      <Panel>
+        <local:VideoSurface x:Name="Surface" IsVisible="{Binding HasVideo}" />
+
+        <StackPanel IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+          <TextBlock Text="No video open." Classes="h3" HorizontalAlignment="Center" />
+          <TextBlock Text="Open one, drop one here, or right-click a video in Explorer." Classes="caption muted" HorizontalAlignment="Center" />
+          <Button Classes="accent" Content="Open a video" Command="{Binding OpenFileCommand}" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="480"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   IsVisible="{Binding Problem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </Panel>
+    </Border>
+
+    <!-- ========================= Transport ========================= -->
+    <Grid Grid.Row="2" Grid.Column="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="16,8,16,16" IsVisible="{Binding HasVideo}">
+      <Button Classes="accent icon play" Command="{Binding PlayPauseCommand}" ToolTip.Tip="Play or pause (Space)">
+        <Panel>
+          <PathIcon Data="{DynamicResource VideoPlay}" Classes="small onAccent" IsVisible="{Binding !IsPlaying}" />
+          <PathIcon Data="{DynamicResource VideoPause}" Classes="small onAccent" IsVisible="{Binding IsPlaying}" />
+        </Panel>
+      </Button>
+
+      <StackPanel Grid.Column="1" Margin="12,0">
+        <local:TrimBar Duration="{Binding Duration}" Position="{Binding Position}" Start="{Binding Start}" End="{Binding End}" />
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <TextBlock Text="{Binding PositionText}" Classes="caption mono" />
+          <TextBlock Grid.Column="2" Text="{Binding RangeText}" Classes="caption" />
+        </Grid>
+      </StackPanel>
+
+      <Button Grid.Column="2" Classes="ghost icon" Command="{Binding ToggleMuteCommand}" ToolTip.Tip="Mute">
+        <Panel>
+          <PathIcon Data="{DynamicResource VideoSound}" Classes="small" IsVisible="{Binding !Muted}" />
+          <PathIcon Data="{DynamicResource VideoMuted}" Classes="small" IsVisible="{Binding Muted}" />
+        </Panel>
+      </Button>
+      <Slider Grid.Column="3" Width="96" Minimum="0" Maximum="100" Value="{Binding Volume}" VerticalAlignment="Center" />
+    </Grid>
+
+    <!-- ========================= Edit ========================= -->
+    <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Classes="sidePanel" IsVisible="{Binding ShowPanel}">
+      <Grid RowDefinitions="*,Auto">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Spacing="18">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Cut" Classes="h3" />
+              <TextBlock Text="Drag the ends of the timeline, or set them at the playhead." Classes="caption" TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button Content="Start here" Command="{Binding MarkStartCommand}" ToolTip.Tip="I" />
+                <Button Content="End here" Command="{Binding MarkEndCommand}" ToolTip.Tip="O" />
+                <Button Classes="ghost" Content="Whole video" Command="{Binding WholeVideoCommand}" />
+              </StackPanel>
+              <CheckBox Content="Exact cut" IsChecked="{Binding ExactCut}"
+                        ToolTip.Tip="Re-encodes so the clip starts on the exact frame. Without it, copying is instant and lossless." />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="Format" Classes="h3" />
+              <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}" HorizontalAlignment="Stretch" />
+            </StackPanel>
+
+            <StackPanel Spacing="8" IsVisible="{Binding IsVideoFormat}">
+              <TextBlock Text="Size" Classes="h3" />
+              <Grid ColumnDefinitions="*,8,*">
+                <ComboBox ItemsSource="{Binding Heights}" SelectedItem="{Binding SelectedHeight}" HorizontalAlignment="Stretch"
+                          ToolTip.Tip="Lower resolution, never higher" />
+                <ComboBox Grid.Column="2" ItemsSource="{Binding Sizes}" SelectedItem="{Binding SelectedSize}" HorizontalAlignment="Stretch"
+                          ToolTip.Tip="File size limit, e.g. for Discord" />
+              </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="8" IsVisible="{Binding !IsAudioOnly}">
+              <TextBlock Text="More" Classes="h3" />
+              <Grid ColumnDefinitions="*,8,*">
+                <ComboBox ItemsSource="{Binding Speeds}" SelectedItem="{Binding SelectedSpeed}" HorizontalAlignment="Stretch" ToolTip.Tip="Speed" />
+                <Button Grid.Column="2" Content="{Binding RotationText}" Command="{Binding RotateCommand}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" ToolTip.Tip="Turns by 90° per click" />
+              </Grid>
+              <CheckBox Content="Remove sound" IsChecked="{Binding RemoveAudio}" IsVisible="{Binding IsVideoFormat}" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding PlanText}" Classes="caption" TextWrapping="Wrap" />
+          </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Spacing="8" Margin="0,12,0,0">
+          <ProgressBar Value="{Binding Progress}" Maximum="1" IsVisible="{Binding IsExporting}" />
+          <TextBlock Text="{Binding ExportText}" Classes="caption" TextWrapping="Wrap"
+                     IsVisible="{Binding ExportText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <Button Classes="ghost" Content="Show result" Command="{Binding RevealOutputCommand}" IsVisible="{Binding HasLastOutput}" />
+            <Button Grid.Column="2" Classes="ghost" Content="Stop" Command="{Binding CancelExportCommand}" IsVisible="{Binding IsExporting}" />
+            <Button Grid.Column="2" Classes="accent" Content="Export" Command="{Binding ExportCommand}" IsVisible="{Binding !IsExporting}"
+                    ToolTip.Tip="Next to the original as &quot;(edited)&quot;. The original stays." />
+          </Grid>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

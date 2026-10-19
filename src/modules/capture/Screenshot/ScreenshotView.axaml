@@ -1,0 +1,283 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Capture.Screenshot"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Capture.Screenshot.ScreenshotView"
+             x:DataType="local:ScreenshotViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Capture/Screenshot/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="Auto,*" Margin="24,18,24,24">
+
+    <!-- ========================= left: capture and settings ========================= -->
+    <!-- Closable with the button left of the tools; closed when an existing screenshot opens. -->
+    <ScrollViewer Grid.Column="0" Width="340" Margin="0,0,20,0" IsVisible="{Binding OptionsVisible}">
+      <StackPanel Spacing="14">
+
+        <Border Classes="card" Padding="16,14">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Capture" Classes="h3" />
+
+            <Button Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Command="{Binding CaptureRegionCommand}" IsEnabled="{Binding !IsCapturing}"
+                    ToolTip.Tip="The screen is frozen, then a region is dragged."
+                    Content="Drag a region" />
+
+            <Grid ColumnDefinitions="*,Auto">
+              <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,8,0"
+                        ItemsSource="{Binding MonitorList}" SelectedItem="{Binding SelectedMonitor}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:Monitor">
+                    <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Grid.Column="1" Classes="ghost" MinWidth="76"
+                      Command="{Binding CaptureMonitorCommand}" IsEnabled="{Binding !IsCapturing}"
+                      Content="Display" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto,Auto">
+              <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,8,0"
+                        ItemsSource="{Binding WindowList}" SelectedItem="{Binding SelectedWindow}"
+                        ToolTip.Tip="A window is captured completely even when another one covers it.">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:CaptureWindow">
+                    <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" MaxWidth="260" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Grid.Column="1" Classes="ghost" MinWidth="76" Margin="0,0,4,0"
+                      Command="{Binding CaptureWindowCommand}" IsEnabled="{Binding !IsCapturing}"
+                      Content="Window" />
+              <Button Grid.Column="2" Classes="ghost icon"
+                      Command="{Binding RefreshSourcesCommand}"
+                      ToolTip.Tip="Reload displays and windows">
+                <PathIcon Data="M12 4a8 8 0 0 0-7.4 5 1 1 0 1 0 1.8.8A6 6 0 0 1 17.7 9H15a1 1 0 1 0 0 2h5a1 1 0 0 0 1-1V5a1 1 0 1 0-2 0v2.3A8 8 0 0 0 12 4Zm-7 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-2.3A8 8 0 0 0 19.4 15a1 1 0 1 0-1.8-.8A6 6 0 0 1 6.3 15H9a1 1 0 1 0 0-2H5Z"
+                          Classes="small muted" />
+              </Button>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,*">
+              <TextBlock Grid.Column="0" Text="Delay" Classes="caption" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="110"
+                        ItemsSource="{Binding Delays}" SelectedItem="{Binding SelectedDelay}"
+                        ToolTip.Tip="Time to open a menu or tooltip before capturing.">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="x:Int32">
+                    <TextBlock Text="{Binding StringFormat='{}{0} s'}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card" Padding="16,14">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Then" Classes="h3" />
+            <CheckBox IsChecked="{Binding AutoSave}" Content="Save as PNG" />
+            <CheckBox IsChecked="{Binding CopyToClipboard}" Content="Copy to clipboard" />
+            <CheckBox IsChecked="{Binding AutoRecognize}" Content="Recognize text" />
+
+            <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+              <TextBlock Grid.Column="0" Text="{Binding TargetDirectory}" Classes="caption muted" TextWrapping="NoWrap"
+                         TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                         ToolTip.Tip="{Binding TargetDirectory}" />
+              <Button Grid.Column="1" Classes="ghost" Margin="8,0,0,0"
+                      Command="{Binding PickFolderCommand}" Content="Folder…" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card" Padding="16,14">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Hotkey" Classes="h3" VerticalAlignment="Center" />
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding HotkeyEnabled}" OnContent="" OffContent="" />
+            </Grid>
+
+            <ComboBox HorizontalAlignment="Stretch" IsEnabled="{Binding HotkeyEnabled}"
+                      ItemsSource="{Binding Hotkeys}" SelectedItem="{Binding SelectedHotkey}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="local:HotkeyChoice">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <RadioButton GroupName="hotkeyTarget" IsEnabled="{Binding HotkeyEnabled}"
+                         IsChecked="{Binding HotkeyTakesScreen}"
+                         Content="Display under the mouse pointer"
+                         ToolTip.Tip="Brings no window to the front. The right choice in the middle of a game." />
+            <RadioButton GroupName="hotkeyTarget" IsEnabled="{Binding HotkeyEnabled}"
+                         IsChecked="{Binding HotkeyTakesRegion}"
+                         Content="Drag a region" />
+
+            <TextBlock Text="{Binding HotkeyText}" Classes="caption" TextWrapping="Wrap"
+                       Classes.warn="{Binding HotkeyProblem}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card" Padding="16,14" IsVisible="{Binding HasRecent}">
+          <StackPanel Spacing="6">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="Recent" Classes="h3" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Classes="ghost" Command="{Binding OpenFolderCommand}" Content="Open folder" />
+            </Grid>
+            <ItemsControl ItemsSource="{Binding Recent}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:RecentShot">
+                  <Button Classes="recent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                          Command="{Binding $parent[ItemsControl].((local:ScreenshotViewModel)DataContext).OpenRecentCommand}"
+                          CommandParameter="{Binding}"
+                          ToolTip.Tip="Load into preview">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding Detail}" Classes="caption muted" />
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ========================= right: the picture, ready to draw on ========================= -->
+    <!-- Every capture opens with the tools above it, as in the Snipping Tool: no separate edit mode. Copy, save
+         and pin take the edited image. The text panel appears only once text recognition ran. -->
+    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*,Auto,Auto">
+
+      <Border Grid.Row="0" Classes="notice" Classes.error="{Binding MessageIsError}" Margin="0,0,0,12"
+              IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+      </Border>
+
+      <!-- Tools on the left, what to do with the result on the right. -->
+      <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" Margin="0,0,0,10" IsVisible="{Binding HasPreview}">
+        <!-- Same group look as the tools next to it; lit while the panel is open. -->
+        <Border Grid.Column="0" Classes="sections" Margin="0,0,10,0">
+          <Button Classes="tool" Classes.active="{Binding ShowOptions}" Command="{Binding ToggleOptionsCommand}"
+                  ToolTip.Tip="Capture options: new capture, delay, hotkey, recent screenshots">
+            <PathIcon Data="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v12h4V6H5Zm6 0v12h8V6h-8Z" />
+          </Button>
+        </Border>
+
+        <Border Grid.Column="1" Classes="sections">
+          <StackPanel Orientation="Horizontal" Spacing="2">
+            <Button Classes="tool" Classes.active="{Binding Editor.IsArrow, FallbackValue=False}" ToolTip.Tip="Arrow"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Arrow">
+              <PathIcon Data="{DynamicResource ToolArrow}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsBox, FallbackValue=False}" ToolTip.Tip="Box"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Box">
+              <PathIcon Data="{DynamicResource ToolBox}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsPen, FallbackValue=False}" ToolTip.Tip="Pen"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Pen">
+              <PathIcon Data="{DynamicResource ToolPen}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsMarker, FallbackValue=False}" ToolTip.Tip="Highlighter"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Marker">
+              <PathIcon Data="{DynamicResource ToolMarker}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsText, FallbackValue=False}" ToolTip.Tip="Text · click where it goes, Enter finishes"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Text">
+              <PathIcon Data="{DynamicResource ToolText}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsPixelate, FallbackValue=False}" ToolTip.Tip="Pixelate · hides names, addresses, passwords"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Pixelate">
+              <PathIcon Data="{DynamicResource ToolPixelate}" />
+            </Button>
+            <Button Classes="tool" Classes.active="{Binding Editor.IsCrop, FallbackValue=False}" ToolTip.Tip="Crop"
+                    Command="{Binding Editor.SelectToolCommand, FallbackValue={x:Null}}" CommandParameter="Crop">
+              <PathIcon Data="{DynamicResource ToolCrop}" />
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <ItemsControl Grid.Column="2" ItemsSource="{Binding Editor.Swatches, FallbackValue={x:Null}}"
+                      Margin="12,0,0,0" VerticalAlignment="Center">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="local:EditorSwatch">
+              <Button Classes="swatch" Classes.active="{Binding IsActive}" ToolTip.Tip="{Binding Name}"
+                      Command="{Binding $parent[ItemsControl].((local:ScreenshotViewModel)DataContext).Editor.SelectColorCommand, FallbackValue={x:Null}}"
+                      CommandParameter="{Binding}">
+                <Border Background="{Binding Brush}" Width="16" Height="16" CornerRadius="8"
+                        BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1" />
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Grid.Column="3" Classes="ghost icon" Margin="8,0,0,0" ToolTip.Tip="Undo (Ctrl+Z)"
+                Command="{Binding Editor.UndoCommand, FallbackValue={x:Null}}"
+                IsEnabled="{Binding Editor.CanUndo, FallbackValue=False}">
+          <PathIcon Data="{DynamicResource ToolUndo}" Classes="small" />
+        </Button>
+
+        <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="6">
+          <Button Classes="accent" Command="{Binding CopyImageCommand}" Content="Copy" ToolTip.Tip="Ctrl+C" />
+          <Button Classes="ghost" Command="{Binding SaveCommand}" Content="Save"
+                  ToolTip.Tip="Ctrl+S · over the capture's own file in the Screenshots folder" />
+          <Button Classes="ghost" Command="{Binding PinCommand}" Content="Pin"
+                  ToolTip.Tip="Keeps the image on top of all windows. Double-click closes it." />
+          <Button Classes="ghost icon" ToolTip.Tip="More">
+            <PathIcon Data="{DynamicResource IconDots}" Classes="small" />
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedRight">
+                <MenuItem Header="Recognize text" Command="{Binding RecognizeCommand}" />
+                <MenuItem Header="Save as…" Command="{Binding SaveAsCommand}" />
+                <MenuItem Header="Show in Explorer" Command="{Binding RevealLastCommand}" />
+                <Separator />
+                <MenuItem Header="Undo all edits" Command="{Binding Editor.ResetCommand, FallbackValue={x:Null}}" />
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <Border Grid.Row="2" Classes="preview">
+        <Panel>
+          <StackPanel IsVisible="{Binding !HasPreview}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+            <TextBlock Text="No capture yet." Classes="h3" HorizontalAlignment="Center" />
+            <TextBlock Text="Win+Shift+S, a button on the left, or a dropped image."
+                       Classes="caption muted" HorizontalAlignment="Center" />
+          </StackPanel>
+          <local:EditorSurface Editor="{Binding Editor}" IsVisible="{Binding HasPreview}" />
+        </Panel>
+      </Border>
+
+      <TextBlock Grid.Row="3" Text="{Binding Editor.SizeText, FallbackValue={x:Null}}" Classes="caption muted" Margin="2,8,0,0"
+                 IsVisible="{Binding HasPreview}" />
+
+      <Border Grid.Row="4" Classes="card" Padding="14,12" Margin="0,10,0,0" IsVisible="{Binding ShowTextPanel}">
+        <Grid RowDefinitions="Auto,Auto">
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="{Binding OcrInfo}" Classes="caption" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Classes="ghost" Command="{Binding CopyTextCommand}"
+                    IsEnabled="{Binding HasOcrText}" Content="Copy text" />
+            <Button Grid.Column="2" Classes="ghost icon" Command="{Binding CloseTextCommand}" ToolTip.Tip="Close" Margin="4,0,0,0">
+              <PathIcon Data="{DynamicResource IconClose}" Width="10" Height="10" />
+            </Button>
+          </Grid>
+          <TextBox Grid.Row="1" Text="{Binding OcrText}" AcceptsReturn="True" TextWrapping="Wrap"
+                   MinHeight="80" MaxHeight="200"
+                   PlaceholderText="Recognized text appears here and can be edited before copying." />
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -1,0 +1,41 @@
+{
+  "id": "files",
+  "name": "Images & files",
+  "summary": "Convert images, remove metadata.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Files",
+  "order": 50,
+
+  "icon": "M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v9.6l3.6-3.6a1 1 0 0 1 1.4 0l3 3 2.6-2.6a1 1 0 0 1 1.4 0L20 15.6V6H4Zm4.5 1a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z",
+  "accent": "#22C7A9",
+
+  "assembly": "MultiTool.Modules.Files.dll",
+  "entryType": "MultiTool.Modules.Files.FilesModule",
+
+  "keywords": ["image", "images", "photo", "convert", "png", "jpg", "jpeg", "webp", "heic", "avif",
+               "tiff", "resize", "scale", "compress", "size", "batch", "video", "mkv", "mp4",
+               "remux", "container", "discord", "metadata", "exif", "gps", "location", "privacy",
+               "iptc", "xmp", "anonymous", "pdf", "office"],
+
+  "requires": [
+    {
+      "tool": "ffmpeg",
+      "hint": "Needed for videos and for HEIC, AVIF and TIFF. winget install Gyan.FFmpeg",
+      "mandatory": false
+    }
+  ],
+
+  "elevation": "never",
+  "keepsRunning": true,
+
+  "closePrompt": {
+    "hint": "A batch is being converted. Closing stops the run; images already written are kept.",
+    "keep": "Keep open",
+    "close": "Cancel and close"
+  },
+
+  "status": {
+    "kind": "none"
+  }
+}

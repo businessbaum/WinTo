@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- yt-dlp and ffmpeg do all the work. This module starts them, reads their output and shows it. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.YouTube</RootNamespace>
+    <AssemblyName>MultiTool.Modules.YouTube</AssemblyName>
+  </PropertyGroup>
+
+</Project>

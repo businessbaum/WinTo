@@ -1,0 +1,72 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- A Discord installation. The colored dot on the left carries the state; the border echoes
+              it subdued so the row reads from the corner of the eye. -->
+  <Style Selector="Border.install">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="14,10" />
+  </Style>
+
+  <Style Selector="Border.install Ellipse.dot">
+    <Setter Property="Fill" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+
+  <Style Selector="Border.installGood Ellipse.dot">
+    <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
+  </Style>
+
+  <Style Selector="Border.installWork">
+    <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" />
+  </Style>
+
+  <Style Selector="Border.installWork Ellipse.dot">
+    <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
+  </Style>
+
+  <Style Selector="Border.installBad">
+    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+  </Style>
+
+  <Style Selector="Border.installBad Ellipse.dot">
+    <Setter Property="Fill" Value="{DynamicResource DangerBrush}" />
+  </Style>
+
+  <Style Selector="Border.install Button.rowAction">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Border.install:pointerover Button.rowAction">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+
+  <Style Selector="Border.notice">
+    <Setter Property="Background" Value="{DynamicResource SuccessSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="14,9" />
+  </Style>
+
+  <Style Selector="Border.notice > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+  </Style>
+
+  <Style Selector="Border.noticeError">
+    <Setter Property="Background" Value="{DynamicResource DangerSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+  </Style>
+
+  <Style Selector="Border.noticeError > TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+  </Style>
+
+</Styles>

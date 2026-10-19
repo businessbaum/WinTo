@@ -1,0 +1,284 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiTool.Host.ViewModels"
+             xmlns:f="using:MultiTool.Host.Features"
+             xmlns:a="using:MultiTool.Abstractions"
+             x:Class="MultiTool.Host.Views.FeaturesView"
+             x:DataType="vm:FeaturesViewModel">
+
+  <UserControl.Styles>
+    <Style Selector="Border.featureRow">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14,12" />
+    </Style>
+    <Style Selector="Border.featureIcon">
+      <Setter Property="Width" Value="40" />
+      <Setter Property="Height" Value="40" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Border.featureIcon > PathIcon">
+      <Setter Property="Width" Value="19" />
+      <Setter Property="Height" Value="19" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="TextBlock.rowTitle">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="600" />
+    </Style>
+    <Style Selector="TextBlock.state">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}" />
+      <Setter Property="Margin" Value="0,3,0,0" />
+    </Style>
+    <Style Selector="Border.chip">
+      <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="{DynamicResource RadiusPill}" />
+      <Setter Property="Padding" Value="12,3,4,3" />
+      <Setter Property="Margin" Value="0,0,6,6" />
+    </Style>
+  </UserControl.Styles>
+
+  <UserControl.DataTemplates>
+    <!-- A shortcut feature: which combination. -->
+    <DataTemplate DataType="f:HotkeyOptions">
+      <Grid ColumnDefinitions="110,*">
+        <TextBlock Text="Shortcut" Classes="label" VerticalAlignment="Center" />
+        <ComboBox Grid.Column="1" ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}"
+                  MinWidth="200" HorizontalAlignment="Left" />
+      </Grid>
+    </DataTemplate>
+
+    <!-- Clipboard history: shortcut, what is kept, how the panel finds and pastes, what is ignored, clearing. -->
+    <DataTemplate DataType="f:ClipboardOptions">
+      <StackPanel Spacing="12">
+        <ContentControl Content="{Binding Shortcut}" />
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Keep" Classes="label" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+            <CheckBox Content="Text" IsChecked="{Binding KeepText}" />
+            <CheckBox Content="Images" IsChecked="{Binding KeepImages}" />
+            <CheckBox Content="Files" IsChecked="{Binding KeepFiles}" />
+            <ComboBox ItemsSource="{Binding SizeChoices}" SelectedIndex="{Binding SizeIndex}" MinWidth="140"
+                      ToolTip.Tip="Unpinned entries beyond this go, oldest first. Pinned entries stay." />
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Paste" Classes="label" VerticalAlignment="Top" Margin="0,6,0,0" />
+          <StackPanel Grid.Column="1" Spacing="4">
+            <CheckBox Content="With formatting" IsChecked="{Binding KeepFormatting}" />
+            <TextBlock Text="Bold text, links and tables come along where they were copied with them. Shift+Enter pastes the other way."
+                       Classes="caption" TextWrapping="Wrap" />
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Panel" Classes="label" VerticalAlignment="Center" />
+          <WrapPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,14,6">
+              <TextBlock Text="Search" Classes="caption" VerticalAlignment="Center" />
+              <ComboBox ItemsSource="{Binding SearchChoices}" SelectedIndex="{Binding SearchIndex}" MinWidth="150"
+                        ToolTip.Tip="Fuzzy finds letters in order: &quot;gthb&quot; finds &quot;github&quot;." />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,14,6">
+              <TextBlock Text="Order" Classes="caption" VerticalAlignment="Center" />
+              <ComboBox ItemsSource="{Binding OrderChoices}" SelectedIndex="{Binding OrderIndex}" MinWidth="140" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
+              <TextBlock Text="Opens at" Classes="caption" VerticalAlignment="Center" />
+              <ComboBox ItemsSource="{Binding PlacementChoices}" SelectedIndex="{Binding PlacementIndex}" MinWidth="150"
+                        ToolTip.Tip="Text cursor works where a program reports one; browsers often don't, then the mouse pointer." />
+            </StackPanel>
+          </WrapPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Ignore" Classes="label" VerticalAlignment="Top" Margin="0,8,0,0" />
+          <StackPanel Grid.Column="1" Spacing="8">
+            <TextBox Text="{Binding IgnoredApps}" PlaceholderText="Programs, e.g. KeePass, WindowsTerminal"
+                     ToolTip.Tip="Process names, comma separated, as the panel shows them after &quot;from&quot;." />
+            <TextBox Text="{Binding IgnoredPatterns}" AcceptsReturn="True" MinHeight="64" Classes="mono"
+                     PlaceholderText="Text patterns, one per line, e.g. \b\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{4}\b"
+                     ToolTip.Tip="Regular expressions. A copied text matching one is not kept." />
+            <TextBlock Text="{Binding PatternProblem}" Classes="caption" Foreground="{DynamicResource DangerBrush}"
+                       TextWrapping="Wrap" IsVisible="{Binding PatternProblem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <CheckBox Content="Paused: new copies are not kept" IsChecked="{Binding Paused}" />
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Stored" Classes="label" VerticalAlignment="Top" Margin="0,2,0,0" />
+          <StackPanel Grid.Column="1" Spacing="8">
+            <TextBlock Text="{Binding Summary}" Classes="caption" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Content="Clear history…" Command="{Binding ClearCommand}" />
+              <Button Classes="ghost" Content="Open folder" Command="{Binding OpenFolderCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </DataTemplate>
+
+    <!-- A Windows tweak: restart Explorer, or the same switch in Settings. -->
+    <DataTemplate DataType="f:TweakOptions">
+      <StackPanel Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Restart Explorer" Command="{Binding RestartExplorerCommand}" IsVisible="{Binding NeedsExplorer}"
+                  IsEnabled="{Binding !Busy}"
+                  ToolTip.Tip="Taskbar and Explorer windows close and come back. Open folders reopen." />
+          <Button Classes="ghost" Content="Open in Settings" Command="{Binding OpenSettingsCommand}"
+                  IsVisible="{Binding HasSettings}" />
+        </StackPanel>
+        <TextBlock Text="{Binding Message}" Classes="caption" TextWrapping="Wrap"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </StackPanel>
+    </DataTemplate>
+
+    <!-- Explorer menu: WinTo's page under Default apps. -->
+    <DataTemplate DataType="f:ExplorerMenuOptions">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="caption" TextWrapping="Wrap"
+                   Text="Windows lets only the user choose default apps. Settings lists every picture and video type WinTo opens; pick it there for each type." />
+        <Button Content="Open default apps in Settings" Command="{Binding OpenDefaultAppsCommand}" HorizontalAlignment="Left" />
+        <TextBlock Text="{Binding Message}" Classes="caption" TextWrapping="Wrap"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      </StackPanel>
+    </DataTemplate>
+
+    <!-- Auto game mode: plan and games. -->
+    <DataTemplate DataType="f:GameModeOptions">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Plan for games" Classes="label" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1" ItemsSource="{Binding Plans}" SelectedItem="{Binding SelectedPlan}"
+                    MinWidth="240" HorizontalAlignment="Left">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="a:PowerPlan">
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+        </Grid>
+
+        <Grid ColumnDefinitions="110,*">
+          <TextBlock Text="Games" Classes="label" VerticalAlignment="Top" Margin="0,4,0,0" />
+          <StackPanel Grid.Column="1" Spacing="8">
+            <TextBlock Text="No games yet." Classes="caption" IsVisible="{Binding !HasGames}" />
+            <ItemsControl ItemsSource="{Binding Games}" IsVisible="{Binding HasGames}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <Border Classes="chip">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{Binding}" VerticalAlignment="Center" />
+                      <Button Classes="ghost icon" Width="22" Height="22" ToolTip.Tip="Remove"
+                              Command="{Binding $parent[ItemsControl].((f:GameModeOptions)DataContext).RemoveCommand}"
+                              CommandParameter="{Binding}">
+                        <PathIcon Data="{DynamicResource IconClose}" Width="9" Height="9" Classes="muted" />
+                      </Button>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ComboBox ItemsSource="{Binding RunningApps}" SelectedItem="{Binding SelectedApp}" MinWidth="220"
+                        PlaceholderText="Running programs" />
+              <Button Content="Add" Command="{Binding AddRunningCommand}" />
+              <Button Classes="ghost" Content="Choose EXE…" Command="{Binding AddFromFileCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <ScrollViewer Padding="28,20,28,28" HorizontalScrollBarVisibility="Disabled">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="860" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <StackPanel Spacing="22">
+        <StackPanel Spacing="3">
+          <TextBlock Text="Features" Classes="h1" />
+          <TextBlock Text="What WinTo does without a window. Each one runs in the background while it is on."
+                     Classes="caption" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Groups}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Spacing="22" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:FeatureGroup">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding Label}" Classes="h3" Margin="2,0,0,4" />
+
+                <ItemsControl ItemsSource="{Binding Features}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Spacing="6" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="f:Feature">
+                      <Border Classes="featureRow">
+                        <StackPanel>
+                          <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                            <Border Classes="featureIcon">
+                              <PathIcon Data="{Binding Icon}" />
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Margin="14,0,16,0" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Name}" Classes="rowTitle" />
+                              <TextBlock Text="{Binding Description}" Classes="caption" TextWrapping="Wrap" />
+                              <TextBlock Text="{Binding Detail}" Classes="state"
+                                         IsVisible="{Binding Detail, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            </StackPanel>
+
+                            <Button Grid.Column="2" Classes="ghost" VerticalAlignment="Center" Margin="0,0,8,0"
+                                    IsVisible="{Binding HasOptions}" Command="{Binding ToggleOptionsCommand}">
+                              <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="Options" VerticalAlignment="Center" />
+                                <PathIcon Data="{DynamicResource IconChevronDown}" Classes="small muted" />
+                              </StackPanel>
+                            </Button>
+
+                            <ToggleSwitch Grid.Column="3" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center"
+                                          OnContent="" OffContent="" />
+                          </Grid>
+
+                          <ContentControl Content="{Binding Options}" IsVisible="{Binding ShowOptions}"
+                                          Margin="54,14,8,4" />
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

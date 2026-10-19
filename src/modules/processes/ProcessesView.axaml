@@ -1,0 +1,192 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.Processes"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.Processes.ProcessesView"
+             x:DataType="local:ProcessesViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Processes/Styles.axaml" />
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+    <!-- ============================ Header ============================ -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="24,18,24,12">
+
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <Button Classes="nav" Classes.navActive="{Binding SortByName}"
+                Command="{Binding SelectSortCommand}" CommandParameter="0"
+                Content="Name" />
+        <Button Classes="nav" Classes.navActive="{Binding SortByCpu}"
+                Command="{Binding SelectSortCommand}" CommandParameter="1"
+                Content="CPU" />
+        <Button Classes="nav" Classes.navActive="{Binding SortByMemory}"
+                Command="{Binding SelectSortCommand}" CommandParameter="2"
+                Content="Memory" />
+      </StackPanel>
+
+      <Button Grid.Column="1" Classes="ghost" Margin="0,0,8,0"
+              IsVisible="{Binding CanElevate}"
+              Command="{Binding ElevateCommand}"
+              ToolTip.Tip="Restarts with SeDebugPrivilege, which allows ending SYSTEM services and other users' processes."
+              Content="As administrator" />
+
+      <Button Grid.Column="2" Classes="ghost"
+              Command="{Binding RefreshCommand}"
+              Content="Reload" />
+    </Grid>
+
+    <!-- ========================== Tools ========================== -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="24,0,24,12">
+      <TextBox Grid.Column="0" Text="{Binding Search}" MaxWidth="360" HorizontalAlignment="Left"
+               PlaceholderText="Name, window title or PID" />
+
+      <TextBlock Grid.Column="1" Text="{Binding CountText}" Classes="caption muted"
+                 VerticalAlignment="Center" Margin="16,0,16,0" />
+
+      <CheckBox Grid.Column="2" IsChecked="{Binding OnlyApplications}"
+                Content="apps only" VerticalAlignment="Center"
+                ToolTip.Tip="Shows only processes with a window. Off also shows services and background processes." />
+    </Grid>
+
+    <!-- The rights notice: one quiet line. It affects about a third of the list, but it is no error. -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" Margin="26,0,24,10" IsVisible="{Binding ShowHiddenHint}">
+      <Ellipse Width="6" Height="6" Fill="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+      <TextBlock Grid.Column="1" Text="{Binding HiddenHint}" Classes="caption" TextWrapping="Wrap" VerticalAlignment="Center" />
+    </Grid>
+
+    <!-- ===================== List and result ===================== -->
+    <Grid Grid.Row="3" ColumnDefinitions="*,400" Margin="24,0,24,24">
+
+      <ListBox Grid.Column="0" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}"
+               Margin="0,0,16,0" Background="Transparent" BorderThickness="0">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="local:ProcessRow">
+            <Grid ColumnDefinitions="*,Auto,90,80" Margin="0,2">
+
+              <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                  <Border Classes="badge badgeGuard" Padding="7,1" VerticalAlignment="Center"
+                          IsVisible="{Binding HasNote}">
+                    <TextBlock Text="{Binding BadgeText}" />
+                  </Border>
+                </StackPanel>
+                <TextBlock Text="{Binding Detail}" Classes="caption muted mono"
+                           TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+
+              <TextBlock Grid.Column="1" Text="{Binding Id}" Classes="caption muted mono"
+                         VerticalAlignment="Center" Margin="12,0,0,0" />
+
+              <TextBlock Grid.Column="2" Text="{Binding CpuText}" Classes="caption mono"
+                         VerticalAlignment="Center" TextAlignment="Right" />
+
+              <TextBlock Grid.Column="3" Text="{Binding MemoryText}" Classes="caption mono"
+                         VerticalAlignment="Center" TextAlignment="Right" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- ======================== The right pane ======================== -->
+      <Grid Grid.Column="1" RowDefinitions="Auto,*">
+
+        <Border Grid.Row="0" Classes="card" Padding="14,12" Margin="0,0,0,12">
+          <StackPanel Spacing="12">
+
+            <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                       IsVisible="{Binding !HasSelection}"
+                       Text="Select a process. Close lets it save, Force ends it." />
+
+            <StackPanel Spacing="12" IsVisible="{Binding HasSelection}">
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Selected.DisplayName}" Classes="h3" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Selected.Detail}" Classes="caption muted mono" TextWrapping="Wrap" />
+              </StackPanel>
+
+              <Border Classes="notice noticeWarn" IsVisible="{Binding Selected.HasNote}">
+                <TextBlock Text="{Binding Selected.BadgeText}" TextWrapping="Wrap" />
+              </Border>
+
+              <Border Classes="notice noticeWarn" IsVisible="{Binding SelectedIsSelf}">
+                <TextBlock Text="This is WinTo itself." TextWrapping="Wrap" />
+              </Border>
+
+              <CheckBox IsChecked="{Binding WithTree}"
+                        Content="with all child processes"
+                        ToolTip.Tip="Freezes the process and its children and ends them from the leaves up. Works against watchdogs that restart their child immediately." />
+
+              <Grid ColumnDefinitions="*,Auto">
+                <Button Grid.Column="0" Classes="ghost" HorizontalAlignment="Stretch"
+                        IsEnabled="{Binding !IsBusy}"
+                        Command="{Binding CloseCommand}"
+                        ToolTip.Tip="Sends WM_CLOSE to the window, like clicking the cross. The program may ask and save."
+                        Content="Close" />
+
+                <Button Grid.Column="1" Classes="danger" Margin="8,0,0,0"
+                        IsEnabled="{Binding !IsBusy}"
+                        Command="{Binding ForceCommand}"
+                        Content="Force" />
+              </Grid>
+
+              <Button Classes="ghost" HorizontalAlignment="Left"
+                      Command="{Binding RevealCommand}"
+                      Content="Show in Explorer" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- The report is the real purpose: "didn't work" is no answer, "didn't work because the
+                          process is PPL-protected" is. -->
+        <Border Grid.Row="1" Classes="card" Padding="14,12" IsVisible="{Binding HasResult}">
+          <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+              <TextBlock Grid.Column="0" Text="{Binding ResultText}" TextWrapping="Wrap"
+                         Classes="h3"
+                         Foreground="{DynamicResource TextPrimaryBrush}" />
+              <Button Grid.Column="1" Classes="ghost" Content="✕" Padding="8,2"
+                      Command="{Binding ClearResultCommand}" />
+            </Grid>
+
+            <Border Grid.Row="1" Classes="notice" Classes.noticeWarn="{Binding !ResultIsGood}"
+                    IsVisible="{Binding HasAdvice}" Margin="0,0,0,10">
+              <TextBlock Text="{Binding AdviceText}" TextWrapping="Wrap" />
+            </Border>
+
+            <TextBlock Grid.Row="2" Text="What was tried" Classes="label" Margin="0,0,0,6"
+                       IsVisible="{Binding HasSteps}" />
+
+            <ScrollViewer Grid.Row="3" Classes="list">
+              <ItemsControl ItemsSource="{Binding Steps}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="local:KillStep">
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+                      <Ellipse Grid.Column="0" Width="7" Height="7" Margin="0,6,10,0"
+                               VerticalAlignment="Top"
+                               Fill="{DynamicResource SuccessBrush}"
+                               IsVisible="{Binding Ok}" />
+                      <Ellipse Grid.Column="0" Width="7" Height="7" Margin="0,6,10,0"
+                               VerticalAlignment="Top"
+                               Fill="{DynamicResource TextMutedBrush}"
+                               IsVisible="{Binding !Ok}" />
+
+                      <StackPanel Grid.Column="1" Spacing="1">
+                        <TextBlock Text="{Binding Name}" Classes="caption" FontWeight="600" />
+                        <TextBlock Text="{Binding Detail}" Classes="caption muted" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

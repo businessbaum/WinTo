@@ -1,0 +1,260 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Styles.Resources>
+    <StreamGeometry x:Key="PhotoOpen">M3 6a2 2 0 0 1 2-2h4.2l2 2H19a2 2 0 0 1 2 2v1H3V6Zm0 4h18l-1.7 8.4A2 2 0 0 1 17.3 20H5.8a2 2 0 0 1-2-1.6L3 10Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoPrevious">M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12l6.6-6.6Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoNext">M8.6 5.4 10 4l8 8-8 8-1.4-1.4 6.6-6.6-6.6-6.6Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoFit">M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoRotateLeft">M12 5a7 7 0 1 1-6.9 8.2l2-.4A5 5 0 1 0 12 7H9.8l2.6 2.6L11 11 6 6l5-5 1.4 1.4L9.8 5H12Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoRotateRight">M12 5a7 7 0 1 0 6.9 8.2l-2-.4A5 5 0 1 1 12 7h2.2l-2.6 2.6L13 11l5-5-5-5-1.4 1.4L14.2 5H12Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoFlipH">M11 3h2v18h-2V3ZM9 7v10H3L9 7Zm6 0 6 10h-6V7Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoFlipV">M3 11h18v2H3v-2Zm4-2V3l10 6H7Zm0 6h10L7 21v-6Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoUndo">M9.4 5 3 11.4l6.4 6.4 1.4-1.4-4-4H15a4 4 0 0 1 0 8h-3v2h3a6 6 0 0 0 0-12H6.8l4-4L9.4 5Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoCopy">M8 3h10a2 2 0 0 1 2 2v12h-2V5H8V3ZM5 7h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm0 2v10h9V9H5Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoWallpaper">M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6v2h3v2H8v-2h3v-2H5a2 2 0 0 1-2-2V5Zm2 0v10h14V5H5Zm1 8 3.5-4 2.5 3 2-2 3 3H6Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoDelete">M9 3h6l1 2h4v2H4V5h4l1-2ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Zm3 3v8h2v-8H9Zm4 0v8h2v-8h-2Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoReset">M12 4a8 8 0 1 1-7.7 10h2.1A6 6 0 1 0 12 6v3L7.5 5 12 1v3Z</StreamGeometry>
+    <StreamGeometry x:Key="PhotoCrop">M6 2h2v14h14v2h-4v4h-2v-4H6V8H2V6h4V2Zm4 4h8v8h-2V8h-6V6Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkArrow">M5.7 19.7 4.3 18.3 15.6 7H9V5h10v10h-2V8.4L5.7 19.7Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkBox">M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Zm2 1v12h12V6H6Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkPen">M15.6 3.6a2 2 0 0 1 2.8 0l2 2a2 2 0 0 1 0 2.8L9 19.8 3.5 21 4.7 15.5 15.6 3.6Zm1.4 1.4L6.5 16.4l-.5 2.1 2.1-.5L19 7l-2-2Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkMarker">M14.5 2.6 21.4 9.5 12 18.9H7.6v-4.4L14.5 2.6Zm0 2.8-4.9 4.9 4.1 4.1 4.9-4.9-4.1-4.1ZM3 20h12v2H3v-2Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkText">M5 4h14v4h-2V6h-4v12h2v2H9v-2h2V6H7v2H5V4Z</StreamGeometry>
+    <StreamGeometry x:Key="MarkPixelate">M3 3h6v6H3V3Zm12 0h6v6h-6V3ZM9 9h6v6H9V9Zm-6 6h6v6H3v-6Zm12 0h6v6h-6v-6Z</StreamGeometry>
+  </Styles.Resources>
+
+  <!-- ================= Ribbon ================= -->
+  <!-- Like Word: tab names on top, the open tab's tools in labeled groups below, always visible. -->
+  <Style Selector="Border.ribbon">
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+  </Style>
+
+  <Style Selector="Button.ribbonTab">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0,0,0,2" />
+    <Setter Property="CornerRadius" Value="6,6,0,0" />
+    <Setter Property="Padding" Value="14,7" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="500" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.ribbonTab:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+  <Style Selector="Button.ribbonTab.active">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="FontWeight" Value="600" />
+  </Style>
+  <Style Selector="Button.ribbonTab.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Panel.ribbonBody">
+    <Setter Property="Height" Value="112" />
+    <Setter Property="Margin" Value="6,0,6,2" />
+  </Style>
+
+  <Style Selector="Border.ribbonGroup">
+    <Setter Property="Padding" Value="10,6,12,0" />
+    <Setter Property="Margin" Value="0,6,0,4" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,1,0" />
+  </Style>
+  <Style Selector="Border.ribbonGroup.last">
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <Style Selector="TextBlock.groupLabel">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="0,2,0,0" />
+  </Style>
+
+  <!-- Large ribbon buttons: icon above, name below. -->
+  <Style Selector=":is(Button).ribbonButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="6,4" />
+    <Setter Property="MinWidth" Value="58" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector=":is(Button).ribbonButton StackPanel">
+    <Setter Property="Spacing" Value="5" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector=":is(Button).ribbonButton PathIcon">
+    <Setter Property="Width" Value="18" />
+    <Setter Property="Height" Value="18" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector=":is(Button).ribbonButton TextBlock">
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector=":is(Button).ribbonButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+  <Style Selector="ToggleButton.ribbonButton:checked /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+  </Style>
+  <Style Selector="Button.accentRibbon PathIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.zoomValue">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="600" />
+    <Setter Property="Height" Value="18" />
+  </Style>
+  <Style Selector="TextBlock.sliderLabel">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.sliderValue">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+  </Style>
+
+  <!-- The picture sits on the darkest surface, framed like the capture preview. -->
+  <Style Selector="Border.stage">
+    <Setter Property="Background" Value="{DynamicResource BgBaseBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+
+  <Style Selector="Border.sidePanel">
+    <Setter Property="Width" Value="316" />
+    <Setter Property="Margin" Value="0,0,16,16" />
+    <Setter Property="Padding" Value="16,14" />
+    <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+  </Style>
+
+  <!-- Four sections in the narrow panel: less padding than elsewhere, or the names are cut. -->
+  <Style Selector="UniformGrid > Button.section">
+    <Setter Property="Padding" Value="4,6" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Border.barDivider">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="Margin" Value="6,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <Style Selector="Button.zoomText">
+    <Setter Property="MinWidth" Value="58" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="FontSize" Value="12.5" />
+  </Style>
+
+  <Style Selector="Border.locationNote">
+    <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="10,8" />
+  </Style>
+
+  <!-- Filters: a small picture through the filter, its name below; the chosen one ringed. -->
+  <Style Selector="Button.filter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Width" Value="64" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+  </Style>
+  <Style Selector="Border.filterThumb">
+    <Setter Property="Height" Value="40" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+  <Style Selector="Button.filter.active Border.filterThumb">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+  <Style Selector="Button.filter:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+
+  <!-- Aspect ratios and size presets. -->
+  <Style Selector="Button.chip">
+    <Setter Property="Padding" Value="12,4" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusPill}" />
+  </Style>
+  <Style Selector="Button.chip.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Markup tools and colors, as in the Capture tool. -->
+  <Style Selector="Button.tool">
+    <Setter Property="Width" Value="36" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.tool PathIcon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+  <Style Selector="Button.tool.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+  <Style Selector="Button.tool.active PathIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="Button.swatch">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="CornerRadius" Value="13" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+  </Style>
+  <Style Selector="Button.swatch.active">
+    <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+</Styles>

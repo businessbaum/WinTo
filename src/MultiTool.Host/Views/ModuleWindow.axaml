@@ -1,0 +1,52 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="MultiTool.Host.Views.ModuleWindow"
+        Icon="avares://WinTo/Assets/app.ico"
+        Width="960" Height="680"
+        MinWidth="480" MinHeight="360"
+        Background="{DynamicResource BgBaseBrush}"
+        WindowStartupLocation="CenterOwner"
+        WindowDecorations="None">
+
+  <!-- No Windows decoration; see MainWindow.axaml. -->
+  <Grid x:Name="Root" RowDefinitions="46,*">
+
+    <Border Grid.Row="0" Classes="chrome" PointerPressed="OnChromePressed">
+      <Grid ColumnDefinitions="*,Auto,Auto" Margin="14,0,12,0">
+        <Button Grid.Column="1"
+                Classes="ghost icon"
+                Name="DockButton"
+                Click="OnDockClicked"
+                ToolTip.Tip="Dock as a tab in the main window">
+          <PathIcon Data="{DynamicResource IconDock}" Classes="muted" />
+        </Button>
+
+        <!-- Window buttons in Windows order: minimize, maximize, close. -->
+        <StackPanel Grid.Column="2"
+                    Classes="trafficGroup"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center"
+                    Margin="14,0,4,0">
+
+          <Button Classes="traffic min" Click="OnMinimizeClicked" ToolTip.Tip="Minimize">
+            <PathIcon Data="{DynamicResource IconGlyphMinus}" />
+          </Button>
+
+          <Button Classes="traffic max" Click="OnMaximizeClicked" ToolTip.Tip="Maximize">
+            <PathIcon Data="{DynamicResource IconGlyphPlus}" />
+          </Button>
+
+          <Button Classes="traffic close" Click="OnCloseClicked" ToolTip.Tip="Close">
+            <PathIcon Data="{DynamicResource IconGlyphCross}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <ContentControl Grid.Row="1" Name="ModuleHost" />
+  </Grid>
+</Window>

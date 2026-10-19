@@ -1,0 +1,254 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MultiTool.Host.ViewModels"
+             xmlns:f="using:MultiTool.Host.Features"
+             xmlns:ui="using:MultiTool.UI"
+             x:Class="MultiTool.Host.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel">
+
+  <UserControl.Styles>
+    <!-- A card that is also a button: the whole surface opens what it describes. -->
+    <Style Selector="Button.dashCard">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="16,14" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Top" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+    <Style Selector="Button.dashCard:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+    <Style Selector="Button.dashCard.warn /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" />
+    </Style>
+
+    <Style Selector="Border.featureCard">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="14,12" />
+    </Style>
+
+    <Style Selector="Border.iconBox">
+      <Setter Property="Width" Value="36" />
+      <Setter Property="Height" Value="36" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    </Style>
+    <Style Selector="Border.iconBox > PathIcon">
+      <Setter Property="Width" Value="17" />
+      <Setter Property="Height" Value="17" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.cardTitle">
+      <Setter Property="FontSize" Value="13.5" />
+      <Setter Property="FontWeight" Value="600" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="TextBlock.big">
+      <Setter Property="FontSize" Value="20" />
+      <Setter Property="FontWeight" Value="600" />
+      <Setter Property="LetterSpacing" Value="-0.3" />
+    </Style>
+
+    <Style Selector="ProgressBar.meter">
+      <Setter Property="Minimum" Value="0" />
+      <Setter Property="Maximum" Value="1" />
+      <Setter Property="Height" Value="6" />
+      <Setter Property="MinHeight" Value="6" />
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="ProgressBar.meter.low">
+      <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+    </Style>
+
+    <Style Selector="Button.shot">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+    <Style Selector="Button.shot:pointerover Border.thumb">
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Border.thumb">
+      <Setter Property="Height" Value="104" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource BgElevatedBrush}" />
+    </Style>
+
+    <Style Selector="Button.link">
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer Padding="28,20,28,28" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Spacing="26">
+
+      <StackPanel Spacing="3">
+        <TextBlock Text="Dashboard" Classes="h1" />
+        <TextBlock Text="{Binding UptimeText}" Classes="caption" />
+      </StackPanel>
+
+      <!-- ================= This PC ================= -->
+      <ui:AdaptiveGrid MinItemWidth="230" ColumnSpacing="12" RowSpacing="12">
+
+        <Button Classes="dashCard" Command="{Binding OpenStorageCommand}" ToolTip.Tip="What fills the drive">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding DiskTitle}" Classes="caption" />
+            <TextBlock Text="{Binding DiskText}" Classes="cardTitle" />
+            <ProgressBar Classes="meter" Classes.low="{Binding DiskLow}" Value="{Binding DiskUsed}" />
+          </StackPanel>
+        </Button>
+
+        <Border Classes="featureCard">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Memory" Classes="caption" />
+            <TextBlock Text="{Binding MemoryText}" Classes="cardTitle" />
+            <ProgressBar Classes="meter" Value="{Binding MemoryUsed}" />
+          </StackPanel>
+        </Border>
+
+        <Button Classes="dashCard" Classes.warn="{Binding AppsTile.IsStatusWarn, FallbackValue=False}"
+                Command="{Binding OpenAppsCommand}" IsVisible="{Binding AppsTile, Converter={x:Static ObjectConverters.IsNotNull}}"
+                ToolTip.Tip="Update apps through winget">
+          <StackPanel Spacing="8">
+            <TextBlock Text="App updates" Classes="caption" />
+            <TextBlock Text="{Binding AppsTile.StatusText, FallbackValue=''}" Classes="cardTitle"
+                       IsVisible="{Binding AppsTile.HasStatus, FallbackValue=False}" />
+            <TextBlock Text="Not checked yet" Classes="cardTitle"
+                       IsVisible="{Binding !AppsTile.HasStatus, FallbackValue=True}" />
+          </StackPanel>
+        </Button>
+
+        <Button Classes="dashCard warn" IsVisible="{Binding RestartPending}" Command="{Binding OpenWindowsUpdateCommand}">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Windows Update" Classes="caption" />
+            <TextBlock Text="Restart pending" Classes="cardTitle" Foreground="{DynamicResource WarningBrush}" />
+          </StackPanel>
+        </Button>
+      </ui:AdaptiveGrid>
+
+      <!-- ================= Features ================= -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="FEATURES" Classes="h3" VerticalAlignment="Center" Margin="2,0,0,0" />
+          <Button Grid.Column="1" Classes="link" Content="All features" Command="{Binding ShowFeaturesCommand}" />
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Features}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <ui:AdaptiveGrid MinItemWidth="300" ColumnSpacing="12" RowSpacing="12" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="f:Feature">
+              <Border Classes="featureCard">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Border Classes="iconBox" VerticalAlignment="Center">
+                    <PathIcon Data="{Binding Icon}" />
+                  </Border>
+                  <StackPanel Grid.Column="1" Margin="12,0,10,0" VerticalAlignment="Center" Spacing="1">
+                    <TextBlock Text="{Binding Name}" Classes="cardTitle" />
+                    <TextBlock Text="{Binding Detail}" Classes="caption" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <ToggleSwitch Grid.Column="2" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center"
+                                OnContent="" OffContent="" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- ================= Recent screenshots ================= -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="RECENT SCREENSHOTS" Classes="h3" VerticalAlignment="Center" Margin="2,0,0,0" />
+          <Button Grid.Column="1" Classes="link" Content="Open folder" Command="{Binding OpenScreenshotsFolderCommand}" />
+        </Grid>
+
+        <TextBlock Text="No screenshots yet. Win+Shift+S takes one." Classes="caption" Margin="2,0,0,0"
+                   IsVisible="{Binding !HasRecent}" />
+
+        <ItemsControl ItemsSource="{Binding Recent}" IsVisible="{Binding HasRecent}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <ui:AdaptiveGrid MinItemWidth="170" ColumnSpacing="12" RowSpacing="12" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RecentCapture">
+              <Button Classes="shot" ToolTip.Tip="{Binding Name}"
+                      Command="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).OpenCaptureCommand}"
+                      CommandParameter="{Binding}">
+                <StackPanel Spacing="6">
+                  <Border Classes="thumb">
+                    <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" />
+                  </Border>
+                  <TextBlock Text="{Binding Name}" Classes="caption" TextTrimming="CharacterEllipsis" Margin="2,0" />
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- ================= Tools ================= -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="TOOLS" Classes="h3" VerticalAlignment="Center" Margin="2,0,0,0" />
+          <Button Grid.Column="1" Classes="link" Content="All tools" Command="{Binding ShowToolsCommand}" />
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding TopTools}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <ui:AdaptiveGrid MinItemWidth="220" ColumnSpacing="12" RowSpacing="12" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:TileViewModel">
+              <Button Classes="dashCard" Padding="12,10" ToolTip.Tip="{Binding Summary}"
+                      Command="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).OpenToolCommand}"
+                      CommandParameter="{Binding}">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Border Classes="iconBox" Background="{Binding AccentSoftBrush}" VerticalAlignment="Center">
+                    <PathIcon Data="{Binding Icon}" Foreground="{Binding AccentBrush}" />
+                  </Border>
+                  <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Spacing="1">
+                    <TextBlock Text="{Binding Name}" Classes="cardTitle" />
+                    <TextBlock Text="{Binding StatusText}" Classes="caption" TextTrimming="CharacterEllipsis"
+                               IsVisible="{Binding HasStatus}" />
+                  </StackPanel>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,40 @@
+{
+  "id": "apps",
+  "name": "Apps",
+  "summary": "Update, install and remove programs.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "System",
+  "order": 20,
+
+  "icon": "M12 2.2a1 1 0 0 0-.5.13l-7.5 4.3A1 1 0 0 0 3.5 7.5v9a1 1 0 0 0 .5.87l7.5 4.3a1 1 0 0 0 1 0l7.5-4.3a1 1 0 0 0 .5-.87v-9a1 1 0 0 0-.5-.87l-7.5-4.3A1 1 0 0 0 12 2.2Zm0 2.15 5.48 3.15L12 10.65 6.52 7.5 12 4.35ZM5.5 9.22l5.5 3.16v6.3L5.5 15.5V9.22Zm7.5 3.16 5.5-3.16v6.28L13 18.68v-6.3Z",
+  "accent": "#4C8DFF",
+
+  "assembly": "MultiTool.Modules.Apps.dll",
+  "entryType": "MultiTool.Modules.Apps.AppsModule",
+
+  "keywords": ["winget", "package", "install", "update", "upgrade", "software", "brew", "choco",
+               "scoop", "store", "uninstall", "remove", "programs", "leftovers", "cleanup", "revo"],
+
+  "requires": [
+    {
+      "tool": "winget",
+      "hint": "Part of \"App Installer\" from the Microsoft Store, preinstalled on Windows 11.",
+      "mandatory": true
+    }
+  ],
+
+  "elevation": "onDemand",
+  "keepsRunning": true,
+
+  "closePrompt": {
+    "hint": "Closing cancels a running installation.",
+    "keep": "Keep open",
+    "close": "Cancel and close"
+  },
+
+  "status": {
+    "kind": "cached",
+    "whenFalse": "not checked yet"
+  }
+}

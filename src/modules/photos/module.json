@@ -1,0 +1,34 @@
+{
+  "id": "photos",
+  "name": "Photos",
+  "summary": "View and edit pictures.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Media",
+  "order": 22,
+
+  "icon": "M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v10.6l4.3-4.3a1 1 0 0 1 1.4 0l3.3 3.3 1.8-1.8a1 1 0 0 1 1.4 0L19 15.6V5H5Zm10 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z",
+  "accent": "#F2994A",
+
+  "assembly": "MultiTool.Modules.Photos.dll",
+  "entryType": "MultiTool.Modules.Photos.PhotosModule",
+
+  "keywords": ["photo", "photos", "picture", "image", "viewer", "edit", "crop", "rotate", "resize",
+               "brightness", "contrast", "filter", "jpg", "jpeg", "png", "heic", "heif", "avif", "webp",
+               "tiff", "raw", "dng", "cr2", "nef", "arw", "gif", "bmp", "wallpaper", "markup"],
+
+  "requires": [
+    {
+      "tool": "ffmpeg",
+      "hint": "Needed only for JPEG XL and formats Windows has no codec for. winget install Gyan.FFmpeg",
+      "mandatory": false
+    }
+  ],
+
+  "elevation": "never",
+  "keepsRunning": false,
+
+  "status": {
+    "kind": "none"
+  }
+}

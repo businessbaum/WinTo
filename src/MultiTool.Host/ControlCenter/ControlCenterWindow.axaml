@@ -1,0 +1,699 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:MultiTool.UI"
+        xmlns:cc="using:MultiTool.Host.ControlCenter"
+        xmlns:abs="using:MultiTool.Abstractions"
+        x:Class="MultiTool.Host.ControlCenter.ControlCenterWindow"
+        x:DataType="cc:ControlCenterViewModel"
+        Title="WinTo – Control center"
+        Width="460"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowDecorations="None"
+        Background="Transparent"
+        WindowStartupLocation="Manual"
+        Opacity="0">
+
+  <!-- Built like MessageDialog: a transparent window with a card inside and room for the shadow.
+           Opacity 0 until placed: the height is only known after the first layout. -->
+
+  <Window.Resources>
+    <StreamGeometry x:Key="CcWifi">M12 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm-4.2-2.8a6 6 0 0 1 8.4 0l-1.4 1.4a4 4 0 0 0-5.6 0l-1.4-1.4Zm-2.9-2.8a10 10 0 0 1 14.2 0l-1.4 1.4a8 8 0 0 0-11.4 0l-1.4-1.4ZM2 10a14 14 0 0 1 20 0l-1.4 1.4a12 12 0 0 0-17.2 0L2 10Z</StreamGeometry>
+    <StreamGeometry x:Key="CcBluetooth">M11 2v7.6L6.7 5.3 5.3 6.7 10.6 12l-5.3 5.3 1.4 1.4 4.3-4.3V22h1l5.7-5.7-4.3-4.3 4.3-4.3L12 2h-1Zm2 4.4 1.9 1.9L13 10.2V6.4Zm0 7.4 1.9 1.9-1.9 1.9v-3.8Z</StreamGeometry>
+    <StreamGeometry x:Key="CcHeadphones">M12 3a9 9 0 0 0-9 9v7a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5v-1a7 7 0 0 1 14 0v1h-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9Z</StreamGeometry>
+    <StreamGeometry x:Key="CcBell">M12 2a6 6 0 0 0-6 6v4l-2 3v1h16v-1l-2-3V8a6 6 0 0 0-6-6Zm-2 16a2 2 0 0 0 4 0h-4Z</StreamGeometry>
+    <StreamGeometry x:Key="CcMoon">M20.7 14.4A8.5 8.5 0 0 1 9.6 3.3a9 9 0 1 0 11.1 11.1Z</StreamGeometry>
+    <StreamGeometry x:Key="CcCup">M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm13 1h1a3 3 0 0 1 0 6h-1.3c.2-.6.3-1.3.3-2h1a1 1 0 0 0 0-2h-1V9ZM3 20h15v2H3v-2ZM8 2h2v4H8V2Zm4 0h2v4h-2V2Z</StreamGeometry>
+    <StreamGeometry x:Key="CcMic">M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Zm-7 9h2a5 5 0 0 0 10 0h2a7 7 0 0 1-6 6.9V21h-2v-3.1A7 7 0 0 1 5 11Z</StreamGeometry>
+    <StreamGeometry x:Key="CcGamepad">M7 6h10a5 5 0 0 1 4.9 6l-.9 4.4a2.7 2.7 0 0 1-4.6 1.3L14.2 16H9.8l-2.2 1.7A2.7 2.7 0 0 1 3 16.4L2.1 12A5 5 0 0 1 7 6Zm0 3v1.5H5.5v2H7V14h2v-1.5h1.5v-2H9V9H7Zm9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm2.5 2.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z</StreamGeometry>
+    <StreamGeometry x:Key="CcSpeaker">M4 9h4l5-4v14l-5-4H4V9Zm11.5-1.3a6 6 0 0 1 0 8.6l-1.4-1.4a4 4 0 0 0 0-5.8l1.4-1.4Zm2.8-2.8a10 10 0 0 1 0 14.2l-1.4-1.4a8 8 0 0 0 0-11.4l1.4-1.4Z</StreamGeometry>
+    <StreamGeometry x:Key="CcSpeakerOff">M4 9h4l5-4v14l-5-4H4V9Zm11.3.7 1.4-1.4 2.3 2.3 2.3-2.3 1.4 1.4-2.3 2.3 2.3 2.3-1.4 1.4-2.3-2.3-2.3 2.3-1.4-1.4 2.3-2.3-2.3-2.3Z</StreamGeometry>
+    <StreamGeometry x:Key="CcSun">M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM11 1h2v3h-2V1Zm0 19h2v3h-2v-3ZM1 11h3v2H1v-2Zm19 0h3v2h-3v-2ZM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4-2.1-2.1Zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4-2.1-2.1ZM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1-1.4-1.4ZM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1-1.4-1.4Z</StreamGeometry>
+    <StreamGeometry x:Key="CcBolt">M13 2 4 14h7l-1 8 9-12h-7l1-8Z</StreamGeometry>
+    <StreamGeometry x:Key="CcCamera">M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z</StreamGeometry>
+    <StreamGeometry x:Key="CcLock">M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 0 1 6 0v3H9Z</StreamGeometry>
+    <StreamGeometry x:Key="CcTrash">M9 3h6l1 2h4v2H4V5h4l1-2ZM6 8h12l-1 13H7L6 8Z</StreamGeometry>
+    <StreamGeometry x:Key="CcCheck">M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7Z</StreamGeometry>
+    <StreamGeometry x:Key="CcPlay">M8 5.1v13.8a1 1 0 0 0 1.5.9l10.6-6.9a1 1 0 0 0 0-1.7L9.5 4.2A1 1 0 0 0 8 5.1Z</StreamGeometry>
+    <StreamGeometry x:Key="CcPause">M7 5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5Zm6 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5Z</StreamGeometry>
+    <StreamGeometry x:Key="CcNext">M4 6.2v11.6a.8.8 0 0 0 1.2.7L13 13v4.8a.8.8 0 0 0 1.2.7l8.4-5.8a.8.8 0 0 0 0-1.4l-8.4-5.8a.8.8 0 0 0-1.2.7V11L5.2 5.5a.8.8 0 0 0-1.2.7Z</StreamGeometry>
+    <StreamGeometry x:Key="CcPrevious">M20 6.2v11.6a.8.8 0 0 1-1.2.7L11 13v4.8a.8.8 0 0 1-1.2.7l-8.4-5.8a.8.8 0 0 1 0-1.4l8.4-5.8a.8.8 0 0 1 1.2.7V11l7.8-5.5a.8.8 0 0 1 1.2.7Z</StreamGeometry>
+    <StreamGeometry x:Key="CcNote">M10 3.5a1 1 0 0 1 .8-1l8-1.5A1 1 0 0 1 20 2v12.5a3.5 3.5 0 1 1-2-3.2V5.2l-6 1.1v10.2A3.5 3.5 0 1 1 10 13.3V3.5Z</StreamGeometry>
+    <StreamGeometry x:Key="CcChevronRight">M9.3 5.3 15 11l-5.7 5.7-1.4-1.4L12.2 11 7.9 6.7l1.4-1.4Z</StreamGeometry>
+  </Window.Resources>
+
+  <Window.Styles>
+    <!-- The card slides up a little and fades in once placed (class set in code). -->
+    <Style Selector="Border.ccCard">
+      <Setter Property="Opacity" Value="0" />
+      <Setter Property="RenderTransform" Value="translateY(14px)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.16" />
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.24" Easing="CubicEaseOut" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Border.ccCard.shown">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="RenderTransform" Value="translateY(0px)" />
+    </Style>
+
+    <!-- Sections keep their space while loading and fade in once their data is there, so the card
+             doesn't grow or jump while slower parts (DDC/CI) still answer. -->
+    <Style Selector=":is(Control).section">
+      <Setter Property="Opacity" Value="0" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.22" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector=":is(Control).section.ready">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <!-- Wi-Fi and Bluetooth: one slim row each, expandable to a device list. -->
+    <Style Selector="Border.ccRow">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="12,6,6,6" />
+    </Style>
+    <Style Selector="Border.ccRow PathIcon.radio">
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="Border.ccRow.on PathIcon.radio">
+      <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}" />
+    </Style>
+
+    <Style Selector="Border.ccList">
+      <Setter Property="Background" Value="{DynamicResource BgBaseBrush}" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="Margin" Value="0,4,0,2" />
+    </Style>
+    <Style Selector="Border.ccList[IsVisible=True]">
+      <Style.Animations>
+        <Animation Duration="0:0:0.18" Easing="CubicEaseOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <Style Selector="Button.listRow">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="FontWeight" Value="400" />
+    </Style>
+
+    <Style Selector="Button.small">
+      <Setter Property="Padding" Value="10,4" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="Button.chevron">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="30" />
+    </Style>
+    <Style Selector="Button.chevron PathIcon">
+      <Setter Property="RenderTransform" Value="rotate(0deg)" />
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="Button.chevron.open PathIcon">
+      <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+    <Style Selector="PathIcon.flip">
+      <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+
+    <!-- Signal strength: four bars, the first always lit. -->
+    <Style Selector="Border.bar">
+      <Setter Property="Width" Value="3" />
+      <Setter Property="CornerRadius" Value="1" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="Background" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+    <Style Selector="Border.bar.lit">
+      <Setter Property="Background" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+
+    <!-- Tiles: toggles and shortcut buttons look the same. Color means "on". -->
+    <Style Selector=":is(Button).tile">
+      <Setter Property="Height" Value="70" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="11,9" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector=":is(Button).tile /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Transitions">
+        <Transitions>
+          <ui:SmoothBrushTransition Property="Background" Duration="0:0:0.13" />
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector=":is(Button).tile:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.tile:checked /template/ ContentPresenter#PART_ContentPresenter, Button.tile.on /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.tile:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.tile.on:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.tile:checked TextBlock, Button.tile.on TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.tile:checked PathIcon, Button.tile.on PathIcon">
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+    </Style>
+    <Style Selector=":is(Button).tile:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="0.55" />
+    </Style>
+
+    <Style Selector="TextBlock.tileTitle">
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="FontWeight" Value="600" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="TextBlock.tileState">
+      <Setter Property="FontSize" Value="11.5" />
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <!-- After .tileState on purpose: the later style wins. -->
+    <Style Selector="ToggleButton.tile:checked TextBlock.tileState, Button.tile.on TextBlock.tileState">
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentMutedBrush}" />
+    </Style>
+
+    <Style Selector="Slider">
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Now playing: a card like the Wi-Fi rows, the cover's color faint behind it. -->
+    <Style Selector="Border.ccNow">
+      <Setter Property="Background" Value="{DynamicResource BgSurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="Button.media">
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="CornerRadius" Value="16" />
+    </Style>
+    <Style Selector="Button.media PathIcon">
+      <Setter Property="Width" Value="15" />
+      <Setter Property="Height" Value="15" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.media.play">
+      <Setter Property="Width" Value="38" />
+      <Setter Property="Height" Value="38" />
+      <Setter Property="CornerRadius" Value="19" />
+    </Style>
+    <Style Selector="Button.media.play PathIcon">
+      <Setter Property="Width" Value="19" />
+      <Setter Property="Height" Value="19" />
+    </Style>
+    <Style Selector="Button.media:disabled PathIcon">
+      <Setter Property="Opacity" Value="0.35" />
+    </Style>
+  </Window.Styles>
+
+  <Border x:Name="Card"
+          Classes="ccCard"
+          Margin="24"
+          Background="{DynamicResource BgElevatedBrush}"
+          BorderBrush="{DynamicResource BorderStrongBrush}"
+          BorderThickness="1"
+          CornerRadius="16"
+          BoxShadow="0 18 44 0 #99000000"
+          Padding="16">
+    <StackPanel Spacing="12">
+
+      <!-- ================= Header ================= -->
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <ui:LogoMark Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="Control center" Classes="h2" VerticalAlignment="Center" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+          <Ellipse Classes="dot" Width="7" Height="7"
+                   Classes.good="{Binding Online}" Classes.warn="{Binding !Online}" />
+          <TextBlock Text="{Binding NetworkText}" Classes="caption" VerticalAlignment="Center"
+                     MaxWidth="170" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+          <TextBlock Text="{Binding BatteryText}" Classes="caption" VerticalAlignment="Center"
+                     IsVisible="{Binding BatteryText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </StackPanel>
+      </Grid>
+
+      <!-- ================= Wi-Fi and Bluetooth ================= -->
+      <StackPanel Spacing="6" Classes="section" Classes.ready="{Binding RadiosReady}">
+
+        <StackPanel IsVisible="{Binding HasWiFi}">
+          <Border Classes="ccRow" Classes.on="{Binding WiFiOn}">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+              <PathIcon Classes="radio" Data="{StaticResource CcWifi}" Margin="0,0,12,0" />
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Wi-Fi" Classes="tileTitle" />
+                <TextBlock Text="{Binding WiFiStatus}" Classes="tileState" />
+              </StackPanel>
+              <ToggleSwitch Grid.Column="2" IsChecked="{Binding WiFiOn}" IsEnabled="{Binding !RadiosBusy}"
+                            VerticalAlignment="Center" Margin="0,0,2,0" />
+              <Button Grid.Column="3" Classes="ghost icon chevron" Classes.open="{Binding WiFiExpanded}"
+                      Command="{Binding ToggleWiFiExpandedCommand}" ToolTip.Tip="Networks">
+                <PathIcon Data="{DynamicResource IconChevronDown}" Classes="small muted" />
+              </Button>
+            </Grid>
+          </Border>
+
+          <Border Classes="ccList" IsVisible="{Binding WiFiExpanded}">
+            <StackPanel Spacing="2">
+              <ItemsControl ItemsSource="{Binding Networks}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="cc:WifiItem">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="8,5,4,5">
+                      <Grid Width="16" Height="12" Margin="0,0,12,0" VerticalAlignment="Center"
+                            ColumnDefinitions="*,*,*,*" IsVisible="{Binding HasSignal}">
+                        <Border Grid.Column="0" Classes="bar lit" Height="4" />
+                        <Border Grid.Column="1" Classes="bar" Classes.lit="{Binding Bar2}" Height="6.5" />
+                        <Border Grid.Column="2" Classes="bar" Classes.lit="{Binding Bar3}" Height="9" />
+                        <Border Grid.Column="3" Classes="bar" Classes.lit="{Binding Bar4}" Height="12" />
+                      </Grid>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Detail}" Classes="tileState" />
+                      </StackPanel>
+                      <Button Grid.Column="2" Classes="small" Content="{Binding ActionText}"
+                              Command="{Binding ToggleCommand}" IsEnabled="{Binding !Busy}"
+                              VerticalAlignment="Center" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <TextBlock Text="{Binding WiFiHint}" Classes="caption" Margin="8,4,8,0"
+                         IsVisible="{Binding WiFiHint, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              <StackPanel Orientation="Horizontal" Spacing="4" Margin="2,2,0,0">
+                <Button Classes="ghost small" Content="Location settings"
+                        Command="{Binding OpenLocationSettingsCommand}" IsVisible="{Binding HasLocationHint}" />
+                <Button Classes="ghost small" Content="All networks" Command="{Binding OpenWiFiListCommand}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding HasBluetooth}">
+          <Border Classes="ccRow" Classes.on="{Binding BluetoothOn}">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+              <PathIcon Classes="radio" Data="{StaticResource CcBluetooth}" Margin="0,0,12,0" />
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Bluetooth" Classes="tileTitle" />
+                <TextBlock Text="{Binding BluetoothStatus}" Classes="tileState" />
+              </StackPanel>
+              <ToggleSwitch Grid.Column="2" IsChecked="{Binding BluetoothOn}" IsEnabled="{Binding !RadiosBusy}"
+                            VerticalAlignment="Center" Margin="0,0,2,0" />
+              <Button Grid.Column="3" Classes="ghost icon chevron" Classes.open="{Binding BluetoothExpanded}"
+                      Command="{Binding ToggleBluetoothExpandedCommand}" ToolTip.Tip="Devices">
+                <PathIcon Data="{DynamicResource IconChevronDown}" Classes="small muted" />
+              </Button>
+            </Grid>
+          </Border>
+
+          <Border Classes="ccList" IsVisible="{Binding BluetoothExpanded}">
+            <StackPanel Spacing="2">
+              <ItemsControl ItemsSource="{Binding Devices}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="cc:BluetoothItem">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="8,5,4,5">
+                      <Panel Width="16" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <PathIcon Data="{StaticResource CcHeadphones}" Classes="small muted" IsVisible="{Binding IsAudio}" />
+                        <PathIcon Data="{StaticResource CcBluetooth}" Classes="small muted" IsVisible="{Binding !IsAudio}" />
+                      </Panel>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Detail}" Classes="tileState" />
+                      </StackPanel>
+                      <Button Grid.Column="2" Classes="small" Content="{Binding ActionText}"
+                              Command="{Binding ToggleCommand}" IsEnabled="{Binding !Busy}"
+                              IsVisible="{Binding CanToggle}" VerticalAlignment="Center" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Text="No paired devices." Classes="caption" Margin="8,4,8,0" IsVisible="{Binding !HasDevices}" />
+              <Button Classes="ghost small" Content="Bluetooth settings" HorizontalAlignment="Left" Margin="2,2,0,0"
+                      Command="{Binding OpenBluetoothSettingsCommand}" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </StackPanel>
+
+      <!-- ================= Tiles ================= -->
+      <ui:AdaptiveGrid MinItemWidth="112" ColumnSpacing="8" RowSpacing="8">
+
+        <ToggleButton Classes="tile" IsVisible="{Binding HasMicrophone}"
+                      IsChecked="{Binding MicrophoneOn}"
+                      ToolTip.Tip="Mute the default microphone.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcMic}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Microphone" Classes="tileTitle" />
+              <TextBlock Text="on" Classes="tileState" IsVisible="{Binding MicrophoneOn}" />
+              <TextBlock Text="muted" Classes="tileState" IsVisible="{Binding !MicrophoneOn}" />
+            </StackPanel>
+          </DockPanel>
+        </ToggleButton>
+
+        <!-- Not a toggle: Windows has no API for it. Shows the state and opens the real switch.
+                          See SystemToggles.DoNotDisturb. -->
+        <Button Classes="tile" Classes.on="{Binding DndOn}"
+                Command="{Binding OpenNotificationSettingsCommand}"
+                ToolTip.Tip="Opens the notification settings. Windows has no API to switch it.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcBell}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Do not disturb" Classes="tileTitle" />
+              <TextBlock Text="{Binding DndText}" Classes="tileState" />
+            </StackPanel>
+          </DockPanel>
+        </Button>
+
+        <ToggleButton Classes="tile" IsChecked="{Binding DarkMode}"
+                      ToolTip.Tip="Dark Windows and apps.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcMoon}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Dark mode" Classes="tileTitle" />
+              <TextBlock Text="on" Classes="tileState" IsVisible="{Binding DarkMode}" />
+              <TextBlock Text="off" Classes="tileState" IsVisible="{Binding !DarkMode}" />
+            </StackPanel>
+          </DockPanel>
+        </ToggleButton>
+
+        <ToggleButton Classes="tile" IsChecked="{Binding GameMode}"
+                      ToolTip.Tip="Windows Game Mode: background work pauses while a game runs.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcGamepad}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Game mode" Classes="tileTitle" />
+              <TextBlock Text="on" Classes="tileState" IsVisible="{Binding GameMode}" />
+              <TextBlock Text="off" Classes="tileState" IsVisible="{Binding !GameMode}" />
+            </StackPanel>
+          </DockPanel>
+        </ToggleButton>
+
+        <ToggleButton Classes="tile" IsChecked="{Binding KeepAwake}"
+                      ToolTip.Tip="The computer doesn't sleep while WinTo runs. The screen may still turn off.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcCup}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Keep awake" Classes="tileTitle" />
+              <TextBlock Text="on" Classes="tileState" IsVisible="{Binding KeepAwake}" />
+              <TextBlock Text="off" Classes="tileState" IsVisible="{Binding !KeepAwake}" />
+            </StackPanel>
+          </DockPanel>
+        </ToggleButton>
+
+        <Button Classes="tile" Command="{Binding ScreenshotCommand}"
+                ToolTip.Tip="Drag a region. Also Win+Shift+S.">
+          <DockPanel>
+            <PathIcon DockPanel.Dock="Top" HorizontalAlignment="Left" Data="{StaticResource CcCamera}" />
+            <StackPanel VerticalAlignment="Bottom">
+              <TextBlock Text="Screenshot" Classes="tileTitle" />
+              <TextBlock Text="region" Classes="tileState" />
+            </StackPanel>
+          </DockPanel>
+        </Button>
+      </ui:AdaptiveGrid>
+
+      <!-- ================= Now playing ================= -->
+      <!-- What Spotify, a browser or a player plays: cover, title, artist, app, its buttons and a progress line
+           that seeks on click. Only while something has a media session. -->
+      <Border Classes="ccNow section" Classes.ready="{Binding Media.Ready}" IsVisible="{Binding Media.HasMedia}">
+        <Panel>
+          <Border Background="{Binding Media.Tint}" IsHitTestVisible="False" />
+          <Grid RowDefinitions="Auto,Auto" Margin="10,10,10,8">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Border Width="58" Height="58" CornerRadius="9" ClipToBounds="True" Background="{DynamicResource BgBaseBrush}">
+                <Panel>
+                  <Image Source="{Binding Media.Art}" Stretch="UniformToFill" IsVisible="{Binding Media.HasArt}" />
+                  <PathIcon Data="{StaticResource CcNote}" Classes="muted" Width="22" Height="22" IsVisible="{Binding !Media.HasArt}" />
+                </Panel>
+              </Border>
+
+              <StackPanel Grid.Column="1" Margin="12,0,6,0" VerticalAlignment="Center" Spacing="1">
+                <TextBlock Text="{Binding Media.Title}" FontSize="13" FontWeight="600" TextTrimming="CharacterEllipsis"
+                           ToolTip.Tip="{Binding Media.Title}" />
+                <TextBlock Text="{Binding Media.Artist}" Classes="caption" TextTrimming="CharacterEllipsis"
+                           IsVisible="{Binding Media.Artist, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <TextBlock Text="{Binding Media.AppName}" Classes="caption muted" FontSize="11" VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis" MaxWidth="150" />
+                  <Button Classes="ghost small" Padding="6,1" IsVisible="{Binding Media.HasSeveral}"
+                          Command="{Binding Media.OtherSessionCommand}" ToolTip.Tip="Next app with sound">
+                    <StackPanel Orientation="Horizontal" Spacing="2">
+                      <TextBlock Text="{Binding Media.SessionText}" FontSize="11" VerticalAlignment="Center" />
+                      <PathIcon Data="{StaticResource CcChevronRight}" Width="10" Height="10" Classes="muted" />
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </StackPanel>
+
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                <Button Classes="icon ghost media" Command="{Binding Media.PreviousCommand}" IsEnabled="{Binding Media.CanPrevious}"
+                        ToolTip.Tip="Previous">
+                  <PathIcon Data="{StaticResource CcPrevious}" />
+                </Button>
+                <Button Classes="icon ghost media play" Command="{Binding Media.PlayPauseCommand}" IsEnabled="{Binding Media.CanPlayPause}"
+                        ToolTip.Tip="Play or pause">
+                  <Panel>
+                    <PathIcon Data="{StaticResource CcPlay}" IsVisible="{Binding !Media.IsPlaying}" />
+                    <PathIcon Data="{StaticResource CcPause}" IsVisible="{Binding Media.IsPlaying}" />
+                  </Panel>
+                </Button>
+                <Button Classes="icon ghost media" Command="{Binding Media.NextCommand}" IsEnabled="{Binding Media.CanNext}"
+                        ToolTip.Tip="Next">
+                  <PathIcon Data="{StaticResource CcNext}" />
+                </Button>
+              </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0" IsVisible="{Binding Media.HasTimeline}">
+              <TextBlock Text="{Binding Media.ElapsedText}" Classes="caption" FontSize="10.5" MinWidth="36" VerticalAlignment="Center" />
+              <cc:SeekBar x:Name="MediaBar" Grid.Column="1" Margin="6,0" VerticalAlignment="Center"
+                          Value="{Binding Media.Progress}" CanSeek="{Binding Media.CanSeek}"
+                          Fill="{DynamicResource TextPrimaryBrush}" Track="{DynamicResource BorderStrongBrush}" />
+              <TextBlock Grid.Column="2" Text="{Binding Media.RemainingText}" Classes="caption" FontSize="10.5" MinWidth="36"
+                         TextAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+          </Grid>
+        </Panel>
+      </Border>
+
+      <!-- ================= Sound ================= -->
+      <StackPanel Spacing="4" IsVisible="{Binding HasAudio}" Classes="section" Classes.ready="{Binding AudioReady}">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="SOUND" Classes="h3" />
+          <TextBlock Grid.Column="1" Text="{Binding VolumeText}" Classes="caption" />
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <Button Classes="icon ghost" Command="{Binding ToggleMuteCommand}"
+                  Margin="0,0,8,0" ToolTip.Tip="Mute">
+            <Panel>
+              <PathIcon Data="{StaticResource CcSpeaker}" IsVisible="{Binding !Muted}" />
+              <PathIcon Data="{StaticResource CcSpeakerOff}" IsVisible="{Binding Muted}" />
+            </Panel>
+          </Button>
+          <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+          <Button Grid.Column="2" Classes="ghost icon chevron" Classes.open="{Binding OutputsExpanded}"
+                  Margin="6,0,0,0" Command="{Binding ToggleOutputsExpandedCommand}" ToolTip.Tip="Output device">
+            <PathIcon Data="{DynamicResource IconChevronDown}" Classes="small muted" />
+          </Button>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto" Margin="42,-4,0,0">
+          <TextBlock Text="{Binding OutputName}" Classes="caption" VerticalAlignment="Center"
+                     TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+          <Button Grid.Column="1" Classes="ghost small" Command="{Binding ToggleAppsExpandedCommand}"
+                  Margin="8,0,0,0" ToolTip.Tip="Volume per program">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="Apps" FontSize="12" VerticalAlignment="Center" />
+              <PathIcon Data="{DynamicResource IconChevronDown}" Width="9" Height="9" Classes="muted"
+                        Classes.flip="{Binding AppsExpanded}" />
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <Border Classes="ccList" IsVisible="{Binding OutputsExpanded}">
+          <ItemsControl ItemsSource="{Binding Outputs}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="cc:OutputItem">
+                <Button Classes="listRow" Command="{Binding ChooseCommand}">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <Panel Width="16" Margin="0,0,10,0">
+                      <PathIcon Data="{StaticResource CcCheck}" Classes="small"
+                                Foreground="{DynamicResource AccentHoverBrush}" IsVisible="{Binding Selected}" />
+                    </Panel>
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12.5" TextTrimming="CharacterEllipsis" />
+                  </Grid>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+
+        <Border Classes="ccList" IsVisible="{Binding AppsExpanded}">
+          <StackPanel Spacing="2">
+            <TextBlock Text="Reading programs…" Classes="caption" Margin="10,6"
+                       IsVisible="{Binding AppsLoading}" />
+            <TextBlock Text="No program is playing sound." Classes="caption" Margin="10,6">
+              <TextBlock.IsVisible>
+                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                  <Binding Path="!HasApps" />
+                  <Binding Path="!AppsLoading" />
+                </MultiBinding>
+              </TextBlock.IsVisible>
+            </TextBlock>
+            <ItemsControl Name="AppList" ItemsSource="{Binding Apps}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="cc:AppVolumeItem">
+                  <Grid ColumnDefinitions="Auto,*,Auto" Margin="2,0,8,0" ToolTip.Tip="{Binding Name}">
+                    <Button Classes="icon ghost" Command="{Binding ToggleMuteCommand}" Margin="0,0,6,0"
+                            ToolTip.Tip="Mute">
+                      <Panel>
+                        <PathIcon Data="{StaticResource CcSpeaker}" Classes="small" IsVisible="{Binding !Muted}" />
+                        <PathIcon Data="{StaticResource CcSpeakerOff}" Classes="small" IsVisible="{Binding Muted}" />
+                      </Panel>
+                    </Button>
+                    <StackPanel Grid.Column="1" Spacing="-4" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                 Classes.muted="{Binding !Active}" />
+                      <Slider Minimum="0" Maximum="100" Value="{Binding Volume}" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding VolumeText}" Classes="caption" MinWidth="40"
+                               TextAlignment="Right" VerticalAlignment="Center" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ================= Brightness ================= -->
+      <StackPanel Spacing="4">
+        <TextBlock Text="BRIGHTNESS" Classes="h3" />
+
+        <StackPanel Spacing="4" IsVisible="{Binding NoDisplays}">
+          <TextBlock Classes="caption" Text="No display reports DDC/CI. It can usually be turned on in the monitor's menu." />
+          <Button Classes="ghost small" HorizontalAlignment="Left" Content="Display settings"
+                  Command="{Binding OpenDisplaySettingsCommand}" />
+        </StackPanel>
+
+        <!-- Rows are reserved from the last count and fade in once DDC/CI answers. -->
+        <ItemsControl Name="DisplayList" ItemsSource="{Binding Displays}" Classes="section" Classes.ready="{Binding DisplaysReady}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Spacing="2" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <!-- One display: the sun, as before. Several: a small map of the arrangement with this one filled
+                 in, and its position and model above the slider, e.g. "Left · DELL U2720Q". -->
+            <DataTemplate x:DataType="cc:DisplayItem">
+              <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                <PathIcon Grid.RowSpan="2" Data="{StaticResource CcSun}" Classes="muted" Margin="9,0,17,0"
+                          ToolTip.Tip="{Binding Name}" IsVisible="{Binding HasOne}" />
+                <cc:DisplayMap Grid.RowSpan="2" Width="34" Height="24" Margin="0,0,10,0" VerticalAlignment="Center"
+                               Spots="{Binding Layout}" Highlight="{Binding Spot}" IsVisible="{Binding HasSeveral}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Label}" Classes="caption" Margin="2,2,0,-6"
+                           TextTrimming="CharacterEllipsis" IsVisible="{Binding HasSeveral}" />
+                <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding Value}" IsEnabled="{Binding IsReal}" />
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ValueText}" Classes="caption" MinWidth="34"
+                           TextAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- ================= Power ================= -->
+      <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding HasPlans}" Classes="section" Classes.ready="{Binding PlansReady}">
+        <PathIcon Data="{StaticResource CcBolt}" Classes="muted" Margin="9,0,17,0" VerticalAlignment="Center" />
+        <ComboBox Grid.Column="1"
+                  ItemsSource="{Binding Plans}"
+                  SelectedItem="{Binding SelectedPlan}"
+                  HorizontalAlignment="Stretch"
+                  ToolTip.Tip="Power plan">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="abs:PowerPlan">
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </Grid>
+
+      <!-- ================= Message ================= -->
+      <Border IsVisible="{Binding HasMessage}"
+              Background="{DynamicResource WarningSoftBrush}"
+              CornerRadius="8" Padding="10,7">
+        <TextBlock Text="{Binding Message}" Classes="caption"
+                   Foreground="{DynamicResource WarningBrush}" />
+      </Border>
+
+      <Border Classes="divider" Margin="0" />
+
+      <!-- ================= Footer ================= -->
+      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+        <Button Classes="icon ghost" Command="{Binding LockCommand}" ToolTip.Tip="Lock">
+          <PathIcon Data="{StaticResource CcLock}" />
+        </Button>
+        <Button Grid.Column="1" Classes="icon ghost" Command="{Binding EmptyRecycleBinCommand}"
+                Margin="4,0,0,0" ToolTip.Tip="Empty recycle bin">
+          <PathIcon Data="{StaticResource CcTrash}" />
+        </Button>
+        <Button Grid.Column="2" Classes="icon ghost" Command="{Binding OpenWindowsSettingsCommand}"
+                Margin="4,0,0,0" ToolTip.Tip="Windows settings">
+          <PathIcon Data="{StaticResource IconSettings}" />
+        </Button>
+
+        <Button Grid.Column="4" Command="{Binding OpenWinToCommand}"
+                Content="Open WinTo" Padding="12,6" MinHeight="34" />
+        <Button Grid.Column="5" Classes="icon danger" Command="{Binding QuitCommand}"
+                Margin="6,0,0,0" ToolTip.Tip="Quit WinTo">
+          <PathIcon Data="{StaticResource IconPower}" />
+        </Button>
+      </Grid>
+
+    </StackPanel>
+  </Border>
+</Window>

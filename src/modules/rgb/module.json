@@ -1,0 +1,32 @@
+{
+  "id": "rgb",
+  "name": "RGB lighting",
+  "summary": "One color or effect for keyboards, mice, RAM, fans and strips.",
+  "version": "1.0.0",
+  "minHostVersion": "0.13.0",
+  "category": "Devices",
+  "order": 35,
+
+  "icon": "M12 2.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-5.5 9a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm11 0a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z",
+  "accent": "#FF4F9A",
+
+  "assembly": "MultiTool.Modules.Rgb.dll",
+  "entryType": "MultiTool.Modules.Rgb.RgbModule",
+
+  "keywords": ["rgb", "lighting", "light", "led", "leds", "color", "colour", "effect", "rainbow", "wave",
+               "breathing", "keyboard", "mouse", "headset", "ram", "fan", "strip", "motherboard", "gpu",
+               "openrgb", "dynamic lighting", "lamparray", "corsair", "icue", "logitech", "g hub",
+               "razer", "chroma", "steelseries", "gamesense", "asus", "aura", "msi", "mystic light"],
+
+  "elevation": "never",
+  "keepsRunning": true,
+  "closePrompt": {
+    "hint": "Effects run and Windows Dynamic Lighting, SteelSeries and Razer devices keep the colors while RGB lighting is open. OpenRGB devices keep theirs after closing.",
+    "keep": "Keep open",
+    "close": "Close"
+  },
+
+  "status": {
+    "kind": "none"
+  }
+}

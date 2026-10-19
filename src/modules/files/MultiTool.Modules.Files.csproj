@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Since 0.13.0 the former image converter and metadata cleaner, as two sections (Convert/,
+       Metadata/). Metadata is removed without an image library: JPEG and PNG are rewritten at
+       segment/chunk level without decoding, so the image is never recompressed. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.Files</RootNamespace>
+    <AssemblyName>MultiTool.Modules.Files</AssemblyName>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Skia comes from the host's default context (Avalonia brings it). A second copy would be a type
+         identity error and 15 MB of natives; the reference is only for compiling against SKBitmap.
+         "runtime;native": with "runtime" alone this folder weighed 290 MB, because NuGet counts
+         runtimes/<rid>/native/ as "native". -->
+    <PackageReference Include="SkiaSharp" ExcludeAssets="runtime;native" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" ExcludeAssets="all" />
+
+    <PackageReference Include="PDFtoImage" />
+
+    <!-- PDFtoImage brings PDFium for Linux and macOS including musl and ARM builds: 76 of 98 MB,
+         never loaded on Windows. Directory.Build.targets fails the build if anything outside win-x64
+         lands in the module folder again. -->
+    <PackageReference Include="bblanchon.PDFium.Linux" ExcludeAssets="all" />
+    <PackageReference Include="bblanchon.PDFium.macOS" ExcludeAssets="all" />
+  </ItemGroup>
+
+</Project>

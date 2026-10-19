@@ -1,0 +1,23 @@
+# Build
+bin/
+obj/
+/build/
+/dist/
+/artifacts/
+
+# Local reference projects and scratch files, not part of the build
+/vendor/
+/*.cs
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Local tool settings
+.claude/
+
+# Notes for coding agents, kept locally only
+CLAUDE.md
+AGENTS.md

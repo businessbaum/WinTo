@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MultiTool.Modules.AirPlay"
+             mc:Ignorable="d"
+             x:Class="MultiTool.Modules.AirPlay.AirPlayView"
+             x:DataType="local:AirPlayViewModel">
+
+  <ScrollViewer Padding="24,20,24,24">
+    <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Stretch">
+
+      <StackPanel Spacing="2">
+        <TextBlock Text="Receive screen" Classes="h2" />
+        <TextBlock Classes="caption muted" Text="This PC shows up under Screen Mirroring on a Mac or iPhone." />
+      </StackPanel>
+
+      <!-- ================= Receiver ================= -->
+      <Border Classes="card" Padding="18,16">
+        <StackPanel Spacing="14">
+
+          <StackPanel Spacing="6">
+            <TextBlock Text="Network name" Classes="label" />
+            <TextBox Text="{Binding ReceiverName}" MaxWidth="320" HorizontalAlignment="Left" />
+          </StackPanel>
+
+          <StackPanel Spacing="6">
+            <TextBlock Text="Receiver program" Classes="label" />
+            <TextBlock Text="{Binding ReceiverPathText}" Classes="caption mono" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="accent" Content="Get receiver"
+                      Command="{Binding InstallReceiverCommand}"
+                      IsEnabled="{Binding !IsInstalling}"
+                      IsVisible="{Binding !ReceiverFound}" />
+              <Button Classes="ghost" Content="Choose program"
+                      Command="{Binding ChooseReceiverCommand}" />
+              <Button Classes="ghost" Content="Releases page"
+                      Command="{Binding OpenReleasesPageCommand}" />
+            </StackPanel>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="accent" Content="Start receiver"
+                    Command="{Binding StartCommand}"
+                    IsVisible="{Binding !IsRunning}"
+                    IsEnabled="{Binding ReceiverFound}" />
+            <Button Classes="ghost" Content="Stop receiver"
+                    Command="{Binding StopCommand}"
+                    IsVisible="{Binding IsRunning}" />
+          </StackPanel>
+
+          <TextBlock Text="{Binding StatusText}" Classes="caption" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+
+      <!-- ================= Log ================= -->
+      <StackPanel Spacing="6" IsVisible="{Binding HasLog}">
+        <TextBlock Text="Log" Classes="label" />
+        <Border Classes="card" Padding="12,10" MaxHeight="220">
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Log}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Text="{Binding}" Classes="caption mono" Margin="0,1" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

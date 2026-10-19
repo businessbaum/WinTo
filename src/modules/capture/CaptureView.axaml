@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Capture"
+             xmlns:shot="using:MultiTool.Modules.Capture.Screenshot"
+             xmlns:rec="using:MultiTool.Modules.Capture.Recording"
+             x:Class="MultiTool.Modules.Capture.CaptureView"
+             x:DataType="local:CaptureViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Border Grid.Row="0" Classes="sections" Margin="24,16,24,0">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="section" Classes.active="{Binding IsScreenshot}" Command="{Binding ShowScreenshotCommand}" Content="Screenshot" />
+        <Button Classes="section" Classes.active="{Binding IsRecording}" Command="{Binding ShowRecordingCommand}" Content="Recording &amp; clips" />
+      </StackPanel>
+    </Border>
+
+    <!-- Both stay in the tree: a running recording survives switching. -->
+    <shot:ScreenshotView Grid.Row="1" DataContext="{Binding Screenshot}" IsVisible="{Binding $parent[UserControl].((local:CaptureViewModel)DataContext).IsScreenshot}" />
+    <rec:RecorderView Grid.Row="1" DataContext="{Binding Recorder}" IsVisible="{Binding $parent[UserControl].((local:CaptureViewModel)DataContext).IsRecording}" />
+  </Grid>
+</UserControl>

@@ -1,0 +1,200 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:MultiTool.Modules.Rgb"
+             x:Class="MultiTool.Modules.Rgb.RgbView"
+             x:DataType="local:RgbViewModel">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MultiTool.Modules.Rgb/Styles.axaml" />
+  </UserControl.Styles>
+
+  <!-- What is set on the left, the devices and where they come from on the right. -->
+  <Grid ColumnDefinitions="*,380" Margin="20,16,20,16">
+
+    <!-- ========================= Editor ========================= -->
+    <ScrollViewer Grid.Column="0" Margin="0,0,16,0" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="14">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock Text="{Binding TargetTitle}" Classes="h2" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding TargetDetail}" Classes="caption muted" TextWrapping="Wrap" />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="ghost" Content="Follow all devices" VerticalAlignment="Center"
+                  IsVisible="{Binding CanFollowAll}" Command="{Binding FollowAllCommand}"
+                  ToolTip.Tip="This device drops its own lighting and shows the one for all devices." />
+        </Grid>
+
+        <Border Classes="stage">
+          <local:EffectPreview Lighting="{Binding Preview}" Height="54" />
+        </Border>
+
+        <!-- Effect -->
+        <Border Classes="sections" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="2">
+            <Button Classes="section" Classes.active="{Binding IsStatic}" Content="Static" Command="{Binding ChooseEffectCommand}" CommandParameter="0" />
+            <Button Classes="section" Classes.active="{Binding IsBreathing}" Content="Breathing" Command="{Binding ChooseEffectCommand}" CommandParameter="1" />
+            <Button Classes="section" Classes.active="{Binding IsSpectrum}" Content="Spectrum" Command="{Binding ChooseEffectCommand}" CommandParameter="2"
+                    ToolTip.Tip="All devices run through every color together." />
+            <Button Classes="section" Classes.active="{Binding IsWave}" Content="Wave" Command="{Binding ChooseEffectCommand}" CommandParameter="3"
+                    ToolTip.Tip="A rainbow moving across each device, from its left to its right." />
+            <Button Classes="section" Classes.active="{Binding IsOff}" Content="Off" Command="{Binding ChooseEffectCommand}" CommandParameter="4" />
+          </StackPanel>
+        </Border>
+
+        <!-- Color -->
+        <Border Classes="card" IsVisible="{Binding ShowsSaturation}">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto,Auto" IsVisible="{Binding ShowsColor}">
+              <TextBlock Text="Color" Classes="label" VerticalAlignment="Center" />
+              <Border Grid.Column="1" Width="28" Height="28" CornerRadius="8" Background="{Binding ColorBrush}"
+                      BorderBrush="#30FFFFFF" BorderThickness="1" Margin="0,0,8,0" />
+              <TextBox Grid.Column="2" Text="{Binding Hex}" Width="96" Classes="mono" PlaceholderText="#RRGGBB"
+                       ToolTip.Tip="Any color as #RRGGBB." />
+            </Grid>
+
+            <ItemsControl ItemsSource="{Binding Swatches}" IsVisible="{Binding ShowsColor}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:Swatch">
+                  <Button Classes="swatch" ToolTip.Tip="{Binding Name}"
+                          Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).ChooseSwatchCommand}"
+                          CommandParameter="{Binding}">
+                    <Border CornerRadius="11" Background="{Binding Brush}" BorderBrush="#30FFFFFF" BorderThickness="1" />
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid ColumnDefinitions="92,*,44" RowDefinitions="Auto,Auto" RowSpacing="8">
+              <TextBlock Text="Hue" Classes="sliderName" IsVisible="{Binding ShowsColor}" />
+              <local:ColorSlider Grid.Column="1" Maximum="360" Value="{Binding Hue}" Track="{x:Static local:RgbViewModel.HueTrack}"
+                                 IsVisible="{Binding ShowsColor}" />
+              <TextBlock Grid.Column="2" Text="{Binding Hue, StringFormat={}{0:0}°}" Classes="sliderValue" IsVisible="{Binding ShowsColor}" />
+
+              <TextBlock Grid.Row="1" Text="Saturation" Classes="sliderName" />
+              <local:ColorSlider Grid.Row="1" Grid.Column="1" Maximum="100" Value="{Binding Saturation}" Track="{Binding SaturationTrack}" />
+              <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Saturation, StringFormat={}{0:0} %}" Classes="sliderValue" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Brightness and speed -->
+        <Border Classes="card" IsVisible="{Binding ShowsBrightness}">
+          <Grid ColumnDefinitions="92,*,44" RowDefinitions="Auto,Auto" RowSpacing="8">
+            <TextBlock Text="Brightness" Classes="sliderName" />
+            <local:ColorSlider Grid.Column="1" Maximum="100" Value="{Binding Brightness}" Track="{Binding BrightnessTrack}" />
+            <TextBlock Grid.Column="2" Text="{Binding Brightness, StringFormat={}{0:0} %}" Classes="sliderValue" />
+
+            <TextBlock Grid.Row="1" Text="Speed" Classes="sliderName" IsVisible="{Binding ShowsSpeed}" />
+            <local:ColorSlider Grid.Row="1" Grid.Column="1" Minimum="1" Maximum="100" Value="{Binding Speed}"
+                               Track="{DynamicResource AccentGradientBrush}" IsVisible="{Binding ShowsSpeed}" />
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Speed, StringFormat={}{0:0}}" Classes="sliderValue" IsVisible="{Binding ShowsSpeed}" />
+          </Grid>
+        </Border>
+
+        <TextBlock Classes="caption muted" TextWrapping="Wrap"
+                   Text="Effects run while this tool is open, on every source in step. Colors through OpenRGB stay on the hardware after closing; Windows, SteelSeries GG and Razer Synapse take their lights back." />
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- ========================= Devices and sources ========================= -->
+    <Border Grid.Column="1" Classes="card" Padding="12">
+      <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <Grid ColumnDefinitions="*,Auto" Margin="4,0,0,8">
+          <TextBlock Text="Devices" Classes="h3" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Classes="ghost icon" Command="{Binding RefreshCommand}" IsEnabled="{Binding !Searching}"
+                  ToolTip.Tip="Look again on every source">
+            <PathIcon Data="M12 4a8 8 0 0 1 7.7 6h-2.1A6 6 0 1 0 18 14h2.1A8 8 0 1 1 12 4Zm5-1v6h-6l2.2-2.2L17 3Z" Width="15" Height="15" />
+          </Button>
+        </Grid>
+
+        <Button Grid.Row="1" Classes="deviceRow" Classes.selected="{Binding IsAll}" Command="{Binding SelectAllCommand}" Margin="0,0,0,4">
+          <Grid ColumnDefinitions="Auto,*">
+            <Border Classes="kindIcon">
+              <PathIcon Data="M12 2.5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-5.5 9a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm11 0a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" />
+            </Border>
+            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+              <TextBlock Text="All devices" FontWeight="600" />
+              <TextBlock Text="Every device without its own lighting" Classes="caption muted" />
+            </StackPanel>
+          </Grid>
+        </Button>
+
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Spacing="10">
+            <TextBlock Text="Looking for devices…" Classes="caption muted" Margin="10,6"
+                       IsVisible="{Binding Searching}" />
+            <TextBlock Classes="caption muted" Margin="10,6" TextWrapping="Wrap" IsVisible="{Binding ShowEmpty}"
+                       Text="No device found; each source below says why. OpenRGB reaches the most hardware." />
+
+            <ItemsControl ItemsSource="{Binding Devices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="local:DeviceItem">
+                  <Button Classes="deviceRow" Classes.selected="{Binding IsSelected}" Classes.excluded="{Binding !IsIncluded}"
+                          Margin="0,0,0,4"
+                          Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).SelectCommand}"
+                          CommandParameter="{Binding}">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                      <Border Classes="kindIcon" VerticalAlignment="Top">
+                        <PathIcon Data="{Binding Icon}" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="600" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Detail}" Classes="caption muted" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Note}" Classes="caption" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"
+                                   IsVisible="{Binding Note, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                        <TextBlock Text="{Binding Problem}" Classes="caption" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"
+                                   IsVisible="{Binding Problem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="dot" Background="{Binding Swatch}" Margin="0,0,10,0"
+                              ToolTip.Tip="What it shows" />
+                      <ToggleSwitch Grid.Column="3" IsChecked="{Binding IsIncluded}" OnContent="" OffContent="" MinWidth="0"
+                                    VerticalAlignment="Center" ToolTip.Tip="Controlled by WinTo" />
+                    </Grid>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Sources -->
+        <StackPanel Grid.Row="3" Spacing="8" Margin="4,12,0,0">
+          <TextBlock Text="Sources" Classes="label" />
+          <ItemsControl ItemsSource="{Binding Sources}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="local:SourceItem">
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8">
+                  <Ellipse Classes="health" Classes.ready="{Binding IsReady}" Classes.problem="{Binding IsProblem}"
+                           Margin="0,0,10,0" VerticalAlignment="Top" />
+                  <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="600" />
+                    <TextBlock Text="{Binding State}" Classes="caption muted" TextWrapping="Wrap" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Classes="small" Content="Install" IsVisible="{Binding CanInstall}"
+                            Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).InstallOpenRgbCommand}"
+                            ToolTip.Tip="Installs OpenRGB with winget. It reaches motherboards, RAM, graphics cards and strips." />
+                    <Button Classes="small" Content="Start" IsVisible="{Binding CanStart}"
+                            Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).StartOpenRgbCommand}"
+                            ToolTip.Tip="Starts OpenRGB with its server, minimized to its own tray icon." />
+                    <Button Classes="small" Content="As admin" IsVisible="{Binding CanStart}"
+                            Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).StartOpenRgbAdminCommand}"
+                            ToolTip.Tip="Motherboard and RAM lighting need OpenRGB as administrator. Windows asks first." />
+                    <Button Classes="small ghost" Content="Settings" IsVisible="{Binding CanOpenSettings}"
+                            Command="{Binding $parent[ItemsControl].((local:RgbViewModel)DataContext).OpenLightingSettingsCommand}"
+                            ToolTip.Tip="Windows' Dynamic Lighting settings: background light control lets WinTo keep the lights while another app is in front." />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

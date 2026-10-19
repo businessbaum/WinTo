@@ -1,0 +1,105 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The preview. Darker than the cards around it so a bright screenshot stands out from the edge
+              and a dark one doesn't vanish into the surface. -->
+  <Style Selector="Border.preview">
+    <Setter Property="Background" Value="{DynamicResource BgBaseBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusLg}" />
+    <Setter Property="Padding" Value="10" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+
+  <Style Selector="Border.notice">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+    <Setter Property="Padding" Value="12,9" />
+  </Style>
+
+  <Style Selector="Border.notice.error">
+    <Setter Property="Background" Value="{DynamicResource DangerSoftBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.warn">
+    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+  </Style>
+
+  <Styles.Resources>
+    <StreamGeometry x:Key="ToolArrow">M5.7 19.7 4.3 18.3 15.6 7H9V5h10v10h-2V8.4L5.7 19.7Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolBox">M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Zm2 1v12h12V6H6Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolPen">M15.6 3.6a2 2 0 0 1 2.8 0l2 2a2 2 0 0 1 0 2.8L9 19.8 3.5 21 4.7 15.5 15.6 3.6Zm1.4 1.4L6.5 16.4l-.5 2.1 2.1-.5L19 7l-2-2Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolMarker">M14.5 2.6 21.4 9.5 12 18.9H7.6v-4.4L14.5 2.6Zm0 2.8-4.9 4.9 4.1 4.1 4.9-4.9-4.1-4.1ZM3 20h12v2H3v-2Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolText">M5 4h14v4h-2V6h-4v12h2v2H9v-2h2V6H7v2H5V4Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolPixelate">M3 3h6v6H3V3Zm12 0h6v6h-6V3ZM9 9h6v6H9V9Zm-6 6h6v6H3v-6Zm12 0h6v6h-6v-6Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolCrop">M6 2h2v14h14v2h-4v4h-2v-4H6V8H2V6h4V2Zm4 4h8v8h-2V8h-6V6Z</StreamGeometry>
+    <StreamGeometry x:Key="ToolUndo">M9.4 5 3 11.4l6.4 6.4 1.4-1.4-4-4H15a4 4 0 0 1 0 8h-3v2h3a6 6 0 0 0 0-12H6.8l4-4L9.4 5Z</StreamGeometry>
+  </Styles.Resources>
+
+  <!-- Tool buttons above the picture: icon only, the active one lifted. -->
+  <Style Selector="Button.tool">
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.tool PathIcon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+  <Style Selector="Button.tool.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgActiveBrush}" />
+  </Style>
+  <Style Selector="Button.tool.active PathIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Pen colors in the editor: a dot, ringed when chosen. -->
+  <Style Selector="Button.swatch">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="CornerRadius" Value="13" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+  </Style>
+
+  <Style Selector="Button.swatch.active">
+    <Setter Property="BorderBrush" Value="{DynamicResource TextPrimaryBrush}" />
+  </Style>
+
+  <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+
+  <!-- Entries of the "Recent" list: rows, not buttons. -->
+  <Style Selector="Button.recent">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="CornerRadius" Value="{DynamicResource RadiusMd}" />
+  </Style>
+
+  <Style Selector="Button.recent /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="Button.recent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource BgHoverBrush}" />
+  </Style>
+
+</Styles>

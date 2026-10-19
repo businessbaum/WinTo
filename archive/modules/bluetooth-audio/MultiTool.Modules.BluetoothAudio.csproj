@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Module conventions live in ..\Directory.Build.props. MMDevice API and SetupAPI are
+              hand-written COM and P/Invoke interop; no package is worth a second dependency here. -->
+
+  <PropertyGroup>
+    <RootNamespace>MultiTool.Modules.BluetoothAudio</RootNamespace>
+    <AssemblyName>MultiTool.Modules.BluetoothAudio</AssemblyName>
+  </PropertyGroup>
+
+</Project>
